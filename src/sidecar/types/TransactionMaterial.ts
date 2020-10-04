@@ -6,6 +6,6 @@ export interface TransactionMaterial {
 	chainName: string;
 	specName: string;
 	specVersion: string;
-	txversion: string;
+	txVersion: string;
 	metadata: string;
 }

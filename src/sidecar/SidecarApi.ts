@@ -79,11 +79,17 @@ export default class SidecarApi {
 	}
 
 	async getTransactionMaterial(
-		height?: number
+		height?: number,
+		noMeta?: boolean
 	): Promise<TransactionMaterial> {
-		const response = height
-			? await this.retryGet(`transaction/material?at=${height}`)
-			: await this.retryGet(`transaction/material`);
+		let uri = `transaction/material?`;
+		if (typeof height === 'number') {
+			uri += `at=${height}&`;
+		}
+		if (typeof noMeta === 'boolean') {
+			uri += `noMeta=${noMeta.toString()}`;
+		}
+		const response = await this.retryGet(uri);
 
 		return response.data as TransactionMaterial;
 	}
