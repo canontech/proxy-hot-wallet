@@ -77,6 +77,7 @@ export default class SidecarApi {
 		return response.data as AccountBalanceInfo;
 	}
 
+	// TODO clean this up so it does not use no meta option
 	async getTransactionMaterial(
 		height?: number,
 		noMeta?: boolean
@@ -85,6 +86,7 @@ export default class SidecarApi {
 		if (typeof height === 'number') {
 			uri += `at=${height}&`;
 		}
+
 		if (typeof noMeta === 'boolean') {
 			uri += `noMeta=${noMeta.toString()}`;
 		}

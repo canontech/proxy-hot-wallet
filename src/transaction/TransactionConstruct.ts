@@ -27,6 +27,8 @@ type ChainName = 'Kusama' | 'Polkadot' | 'Polkadot CC1' | 'Westend';
 
 type SpecName = 'kusama' | 'polkadot' | 'westend';
 
+// TODO - all transaction method could optionally take in metadata RPC to avoid
+// expensive calls by using  `/transaction/material?noMeta=true`.
 export class TransactionConstruct {
 	private api: SidecarApi;
 	private readonly ERA_PERIOD = 64;
