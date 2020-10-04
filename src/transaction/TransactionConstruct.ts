@@ -17,11 +17,17 @@ interface BaseInfo {
 	transactionVersion: number;
 }
 
+interface UnsignedCall {
+	unsigned: txwrapper.UnsignedTransaction;
+	metadataRpc: string;
+	registry: TypeRegistry;
+}
+
 type ChainName = 'Kusama' | 'Polkadot' | 'Polkadot CC1' | 'Westend';
 
 type SpecName = 'kusama' | 'polkadot' | 'westend';
 
-export class TxConstruct {
+export class TransactionConstruct {
 	private api: SidecarApi;
 	private readonly ERA_PERIOD = 64;
 	private readonly EXTRINSIC_VERSION = TRANSACTION_VERSION;
@@ -69,77 +75,184 @@ export class TxConstruct {
 	}
 
 	// TODO proxyType can be of type string literal "Any" | "Democracy" etc..
+	// NOTE: this does not sign transacstion
 	async proxyAddProxy(
-		origin: KeyringPair,
+		origin: string,
 		delegate: string,
 		proxyType: string,
 		delay: number,
 		tip?: number
-	): Promise<string> {
+	): Promise<UnsignedCall> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
-			origin.address
+			origin
 		);
 		const { metadataRpc } = baseInfo;
 
 		const unsigned = txwrapper.proxy.addProxy(
 			{ delegate, proxyType, delay },
 			{
-				address: origin.address,
+				address: origin,
 				tip,
 				...baseInfo,
 			},
 			{ metadataRpc, registry }
 		);
 
-		return this.createSignedTransaction(
+		return {
 			unsigned,
-			origin,
+			metadataRpc,
 			registry,
-			metadataRpc
-		);
+		};
 	}
 
-	/**
-	 * Create a signed balances transfer.
-	 *
-	 * @param from Keyring pair of the signing account
-	 * @param to address to `value` amount of native token to.
-	 * @param value amoutn of token to send
-	 */
+	async proxyProxyAnnounced(
+		origin: string,
+		delegate: string,
+		forceProxyType: string,
+		call: string,
+		tip?: number
+	): Promise<UnsignedCall> {
+		const { baseInfo, registry } = await this.fetchTransactionMaterial(
+			origin
+		);
+		const { metadataRpc } = baseInfo;
+
+		const unsigned = txwrapper.proxy.proxyAnnounced(
+			{
+				delegate,
+				forceProxyType,
+				call,
+			},
+			{
+				address: origin,
+				tip,
+				...baseInfo,
+			},
+			{ metadataRpc, registry }
+		);
+
+		return { unsigned, registry, metadataRpc };
+	}
+
+	async proxyAnnounce(
+		origin: string,
+		real: string,
+		callhash: string,
+		tip?: number
+	): Promise<UnsignedCall> {
+		const { baseInfo, registry } = await this.fetchTransactionMaterial(
+			origin
+		);
+		const { metadataRpc } = baseInfo;
+
+		const unsigned = txwrapper.proxy.announce(
+			{ real, callhash },
+			{
+				address: origin,
+				tip,
+				...baseInfo,
+			},
+			{ metadataRpc, registry }
+		);
+
+		return { unsigned, registry, metadataRpc };
+	}
+
+	async proxyRemoveProxies(
+		origin: string,
+		tip?: number
+	): Promise<UnsignedCall> {
+		const { baseInfo, registry } = await this.fetchTransactionMaterial(
+			origin
+		);
+		const { metadataRpc } = baseInfo;
+
+		const unsigned = txwrapper.proxy.removeProxies(
+			{},
+			{
+				address: origin,
+				tip,
+				...baseInfo,
+			},
+			{ metadataRpc, registry }
+		);
+
+		return { unsigned, registry, metadataRpc };
+	}
+
+	async proxyRejectAnnouncement(
+		origin: string,
+		delegate: string,
+		callHash: string,
+		tip?: number
+	): Promise<UnsignedCall> {
+		const { baseInfo, registry } = await this.fetchTransactionMaterial(
+			origin
+		);
+		const { metadataRpc } = baseInfo;
+		const unsigned = txwrapper.balances.transfer(
+			{ delegate, callHash },
+			{
+				address: origin,
+				tip,
+				...baseInfo,
+			},
+			{ metadataRpc, registry }
+		);
+		return { unsigned, registry, metadataRpc };
+	}
+
 	async balancesTransfer(
-		origin: KeyringPair,
+		origin: string,
 		dest: string,
 		value: string,
 		tip?: number
-	): Promise<string> {
+	): Promise<UnsignedCall> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
-			origin.address
+			origin
 		);
 		const { metadataRpc } = baseInfo;
 
 		const unsigned = txwrapper.balances.transfer(
 			{ dest, value },
 			{
-				address: origin.address,
+				address: origin,
 				tip,
 				...baseInfo,
 			},
 			{ metadataRpc, registry }
 		);
 
-		return this.createSignedTransaction(
-			unsigned,
-			origin,
-			registry,
-			metadataRpc
-		);
+		return { unsigned, registry, metadataRpc };
 	}
 
-	private createSignedTransaction(
-		unsigned: txwrapper.UnsignedTransaction,
+	async utilityAsDerivative(
+		origin: string,
+		index: number,
+		call: string,
+		tip?: number
+	): Promise<UnsignedCall> {
+		const { baseInfo, registry } = await this.fetchTransactionMaterial(
+			origin
+		);
+		const { metadataRpc } = baseInfo;
+
+		const unsigned = txwrapper.utility.asDerivative(
+			{ index, call },
+			{
+				address: origin,
+				tip,
+				...baseInfo,
+			},
+			{ metadataRpc, registry }
+		);
+
+		return { unsigned, registry, metadataRpc };
+	}
+
+	createAndSignTransaction(
 		origin: KeyringPair,
-		registry: TypeRegistry,
-		metadataRpc: string
+		{ unsigned, registry, metadataRpc }: UnsignedCall
 	): string {
 		registry.setMetadata(createMetadata(registry, metadataRpc));
 

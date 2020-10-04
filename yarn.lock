@@ -280,10 +280,10 @@
   resolved "https://registry.yarnpkg.com/@substrate/calc/-/calc-0.1.2.tgz#7004563c04a268ecacebcba2be78a55fd44e42fa"
   integrity sha512-iftibGOcr4fwp6RFP7Zl6JruSppIt8EL9ZBVgQcymIYJw1cr99mOph+W+8HUAyqF1bKJuwAthHnae2J7bGTn0w==
 
-"@substrate/txwrapper@^3.9.0":
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/@substrate/txwrapper/-/txwrapper-3.9.0.tgz#222bd008ddfbe494776bf708fee995b7e1d4b761"
-  integrity sha512-nMYP442IIX1JV6lAAlNZme/QTy2uCgjYwWSAwmOTNOFBaXK4zHeFz177yngs0V5OiCPByiVAbfNrzsWERFoxpw==
+"@substrate/txwrapper@^3.10.0":
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/@substrate/txwrapper/-/txwrapper-3.10.0.tgz#41667f56862844be0e19a75b2a2c8851995a56e7"
+  integrity sha512-LJ+rbbZHB4Wz2Ig/BgnKHV4iqVSrHcYVxD/9GbhdU82xPW8rDFDyZ6+PePeXSo+lQRdeHkVUZWLtlOIH6Kr7Gg==
   dependencies:
     "@polkadot/api" "^2.0.1"
     "@types/memoizee" "^0.4.3"
@@ -296,11 +296,6 @@
   integrity sha512-pqr857jrp2kPuO9uRjZ3PwnJTjoQy+fcdxvBTvHm6dkmEL9q+hDD/2j/0ELOBPtPnS8LjCX0gI9nbl8lVkadpg==
   dependencies:
     "@types/node" "*"
-
-"@types/color-name@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
-  integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
 
 "@types/json-schema@^7.0.3":
   version "7.0.6"
@@ -470,11 +465,10 @@ ansi-styles@^3.2.0, ansi-styles@^3.2.1:
     color-convert "^1.9.0"
 
 ansi-styles@^4.1.0:
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-4.2.1.tgz#90ae75c424d008d2624c5bf29ead3177ebfcf359"
-  integrity sha512-9VGjrMsG1vePxcSweQsN20KY/c4zN0h9fLjqAbwbPfahM3t+NL+M9HC8xeXG2I8pX5NoamTGNuomEUFI7fcUjA==
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-4.3.0.tgz#edd803628ae71c04c85ae7a0906edad34b648937"
+  integrity sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==
   dependencies:
-    "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
 argparse@^1.0.7:
