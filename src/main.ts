@@ -1,10 +1,8 @@
-import { createDemoKeyPairs } from './keyring';
+import { generateMultiSig } from './actions/generateMultiSig';
 
 async function main() {
-	const keys = await createDemoKeyPairs();
-	console.log(keys);
-
-	process.exit(1);
+	await generateMultiSig();
+	process.exit();
 }
 
 main().catch(console.log);
