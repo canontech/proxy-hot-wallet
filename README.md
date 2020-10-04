@@ -3,6 +3,13 @@ Demo for a safe and effective custodial hot wallet using features unique to Subs
 
 Architecture by @joepetrowski. Implementation by @emostov.
 
+## TODO
+
+- [] Chain sync with methods that allow to specify the event to watch for
+- [] Create multisig transactions
+- [] Continue main script
+- [] Look into auto starting sidecar on script start
+
 ## Pre-implementation plan
 ```
 Generate 6 keyrings and make sure accounts have funds (can just use dev chain keys)
