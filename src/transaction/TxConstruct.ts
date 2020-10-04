@@ -70,48 +70,35 @@ export class TxConstruct {
 			{ metadataRpc, registry }
 		);
 
-		const signingPayload = txwrapper.createSigningPayload(unsigned, {
+		return this.createSignedTransaction(
+			unsigned,
+			signer,
 			registry,
-		});
-
-		const;
-	}
-
-	private signWith(
-		pair: KeyringPair,
-		signingPayload: string,
-		registry: TypeRegistry,
-		metadataRpc: string
-	): string {
-		// Important! The registry needs to be updated with latest metadata, so make
-		// sure to run `registry.setMetadata(metadata)` before signing.
-		registry.setMetadata(createMetadata(registry, metadataRpc));
-
-		// const { signature } = registry
-		// 	.createType('ExtrinsicPayload', signingPayload, {
-		// 		version: TRANSACTION_VERSION,
-		// 	})
-		// 	.sign(pair);
-
-		// return signature;
+			metadataRpc
+		);
 	}
 
 	private createSignedTransaction(
-		unsigned: string,
+		unsigned: txwrapper.UnsignedTransaction,
 		signer: KeyringPair,
 		registry: TypeRegistry,
 		metadataRpc: string
 	): string {
 		registry.setMetadata(createMetadata(registry, metadataRpc));
 
-		const signing
+		const signingPayload = txwrapper.createSigningPayload(unsigned, {
+			registry,
+		});
 
 		const { signature } = registry
-			.createType('ExtrinsicPayload', unsigned., {
+			.createType('ExtrinsicPayload', signingPayload, {
 				version: this.EXTRINSIC_VERSION,
 			})
 			.sign(signer);
 
-			txwrapper.createSignedTx()
+		return txwrapper.createSignedTx(unsigned, signature, {
+			registry,
+			metadataRpc,
+		});
 	}
 }

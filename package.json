@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@polkadot/util-crypto": "^3.5.1",
+    "@substrate/api-sidecar": "^1.0.0-rc3",
     "@substrate/txwrapper": "^3.9.0",
     "axios": "^0.20.0"
   },

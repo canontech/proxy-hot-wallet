@@ -13,7 +13,8 @@ export default class SidecarApi {
 	private api: AxiosInstance;
 	readonly SECOND = 1_000;
 	constructor(sidecarBaseUrl: string) {
-		this.api = axios.create({ baseURL: sidecarBaseUrl });
+		// this.api = axios.create({ baseURL: sidecarBaseUrl });
+		this.api = axios.create({ baseURL: 'http://127.0.0.1:8080' });
 	}
 
 	/**
@@ -23,7 +24,7 @@ export default class SidecarApi {
 	 * @param uri URI
 	 * @param attempts only for recursive cases
 	 */
-	async retryGet(uri: string, attempts = 0): Promise<ApiResponse> {
+	private async retryGet(uri: string, attempts = 0): Promise<ApiResponse> {
 		try {
 			return await this.api.get(uri);
 		} catch (e) {
@@ -37,19 +38,17 @@ export default class SidecarApi {
 				return await this.retryGet(uri, attempts);
 			}
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			if (e && e?.isAxiosError) {
+			if (e?.isAxiosError) {
 				const {
 					response,
 					config: { url, method },
 				} = e as AxiosError<Error>;
 
-				const res = response;
-
 				throw {
 					method,
 					url,
-					status: res?.status,
-					statusText: res?.statusText,
+					status: response?.status,
+					statusText: response?.statusText,
 				};
 			}
 
@@ -92,6 +91,31 @@ export default class SidecarApi {
 		const response = await this.retryGet(uri);
 
 		return response.data as TransactionMaterial;
+	}
+
+	async submitTransaction(tx: string): Promise<{ hash: string }> {
+		try {
+			return (await this.api.post('/transaction', { tx })).data as {
+				hash: string;
+			};
+		} catch (e) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			if (e?.isAxiosError) {
+				const {
+					response,
+					config: { url, method },
+				} = e as AxiosError<Error>;
+
+				throw {
+					method,
+					url,
+					status: response?.status,
+					statusText: response?.statusText,
+				};
+			}
+
+			throw e;
+		}
 	}
 
 	/**
