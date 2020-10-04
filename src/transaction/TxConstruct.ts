@@ -6,6 +6,17 @@ import { createMetadata } from '@substrate/txwrapper/lib/util';
 
 import SidecarApi from '../sidecar/SidecarApi';
 
+interface BaseInfo {
+	nonce: number;
+	eraPeriod: number;
+	blockHash: string;
+	blockNumber: number;
+	specVersion: number;
+	genesisHash: string;
+	metadataRpc: string;
+	transactionVersion: number;
+}
+
 type ChainName = 'Kusama' | 'Polkadot' | 'Polkadot CC1' | 'Westend';
 
 type SpecName = 'kusama' | 'polkadot' | 'westend';
@@ -19,19 +30,9 @@ export class TxConstruct {
 		this.api = new SidecarApi(sidecarURL);
 	}
 
-	/**
-	 * Create a signed balances transfer.
-	 *
-	 * @param from Keyring pair of the signing account
-	 * @param to address to `value` amount of native token to.
-	 * @param value amoutn of token to send
-	 */
-	async balancesTransfer(
-		signer: KeyringPair,
-		dest: string,
-		value: string,
-		tip?: number
-	): Promise<string> {
+	private async fetchTransactionMaterial(
+		originAddress: string
+	): Promise<{ baseInfo: BaseInfo; registry: TypeRegistry }> {
 		const {
 			genesisHash,
 			txVersion,
@@ -44,7 +45,7 @@ export class TxConstruct {
 		const {
 			at: { hash: blockHash, height },
 			nonce,
-		} = await this.api.getAccountBalance(signer.address);
+		} = await this.api.getAccountBalance(originAddress);
 
 		const registry = txwrapper.getRegistry(
 			chainName as ChainName,
@@ -53,26 +54,82 @@ export class TxConstruct {
 			metadataRpc
 		);
 
-		const unsigned = txwrapper.balances.transfer(
-			{ dest, value },
+		const baseInfo = {
+			nonce: parseInt(nonce),
+			eraPeriod: this.ERA_PERIOD,
+			blockHash,
+			blockNumber: parseInt(height),
+			specVersion: parseInt(specVersion),
+			genesisHash,
+			metadataRpc,
+			transactionVersion: parseInt(txVersion),
+		};
+
+		return { baseInfo, registry };
+	}
+
+	// TODO proxyType can be of type string literal "Any" | "Democracy" etc..
+	async proxyAddProxy(
+		origin: KeyringPair,
+		delegate: string,
+		proxyType: string,
+		delay: number,
+		tip?: number
+	): Promise<string> {
+		const { baseInfo, registry } = await this.fetchTransactionMaterial(
+			origin.address
+		);
+		const { metadataRpc } = baseInfo;
+
+		const unsigned = txwrapper.proxy.addProxy(
+			{ delegate, proxyType, delay },
 			{
-				address: signer.address,
+				address: origin.address,
 				tip,
-				nonce: parseInt(nonce),
-				eraPeriod: this.ERA_PERIOD,
-				blockHash,
-				blockNumber: parseInt(height),
-				specVersion: parseInt(specVersion),
-				genesisHash,
-				metadataRpc,
-				transactionVersion: parseInt(txVersion),
+				...baseInfo,
 			},
 			{ metadataRpc, registry }
 		);
 
 		return this.createSignedTransaction(
 			unsigned,
-			signer,
+			origin,
+			registry,
+			metadataRpc
+		);
+	}
+
+	/**
+	 * Create a signed balances transfer.
+	 *
+	 * @param from Keyring pair of the signing account
+	 * @param to address to `value` amount of native token to.
+	 * @param value amoutn of token to send
+	 */
+	async balancesTransfer(
+		origin: KeyringPair,
+		dest: string,
+		value: string,
+		tip?: number
+	): Promise<string> {
+		const { baseInfo, registry } = await this.fetchTransactionMaterial(
+			origin.address
+		);
+		const { metadataRpc } = baseInfo;
+
+		const unsigned = txwrapper.balances.transfer(
+			{ dest, value },
+			{
+				address: origin.address,
+				tip,
+				...baseInfo,
+			},
+			{ metadataRpc, registry }
+		);
+
+		return this.createSignedTransaction(
+			unsigned,
+			origin,
 			registry,
 			metadataRpc
 		);
@@ -80,7 +137,7 @@ export class TxConstruct {
 
 	private createSignedTransaction(
 		unsigned: txwrapper.UnsignedTransaction,
-		signer: KeyringPair,
+		origin: KeyringPair,
 		registry: TypeRegistry,
 		metadataRpc: string
 	): string {
@@ -94,7 +151,7 @@ export class TxConstruct {
 			.createType('ExtrinsicPayload', signingPayload, {
 				version: this.EXTRINSIC_VERSION,
 			})
-			.sign(signer);
+			.sign(origin);
 
 		return txwrapper.createSignedTx(unsigned, signature, {
 			registry,

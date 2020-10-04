@@ -14,7 +14,7 @@ export default class SidecarApi {
 	readonly SECOND = 1_000;
 	constructor(sidecarBaseUrl: string) {
 		// this.api = axios.create({ baseURL: sidecarBaseUrl });
-		this.api = axios.create({ baseURL: 'http://127.0.0.1:8080' });
+		this.api = axios.create({ baseURL: sidecarBaseUrl });
 	}
 
 	/**
