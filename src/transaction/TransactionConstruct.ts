@@ -1,5 +1,7 @@
-import { TypeRegistry } from '@polkadot/types';
+import { Option, TypeRegistry } from '@polkadot/types';
 import { TRANSACTION_VERSION } from '@polkadot/types/extrinsic/v4/Extrinsic';
+import { Timepoint } from '@polkadot/types/interfaces';
+import { AnyJson } from '@polkadot/types/types';
 import * as txwrapper from '@substrate/txwrapper';
 import { KeyringPair } from '@substrate/txwrapper';
 import { createMetadata } from '@substrate/txwrapper/lib/util';
@@ -9,7 +11,7 @@ import {
 	OptionsWithMeta,
 } from '@substrate/txwrapper/lib/util/types';
 
-import SidecarApi from '../sidecar/SidecarApi';
+import { SidecarApi } from '../sidecar/SidecarApi';
 
 interface BaseInfo {
 	nonce: number;
@@ -85,7 +87,7 @@ export class TransactionConstruct {
 		origin: string,
 		threshold: number,
 		otherSignatories: string[],
-		maybeTimepoint: string | number | null,
+		maybeTimepointArg: number | null,
 		callHash: string,
 		maxWeight: number,
 		tip?: number
@@ -93,7 +95,7 @@ export class TransactionConstruct {
 		interface ApproveAsMultiArgs extends Args {
 			threshold: number;
 			otherSignatories: string[];
-			maybeTimepoint: string | number | null;
+			maybeTimepoint: AnyJson;
 			callHash: string;
 			maxWeight: number;
 		}
@@ -125,7 +127,11 @@ export class TransactionConstruct {
 			{
 				threshold,
 				otherSignatories,
-				maybeTimepoint,
+				maybeTimepoint: registry
+					.createType('Option<Timepoint>', {
+						Some: maybeTimepointArg,
+					})
+					.toJSON(),
 				callHash,
 				maxWeight,
 			},
@@ -141,9 +147,10 @@ export class TransactionConstruct {
 	}
 
 	async multiSigAsMulti(
+		origin: string,
 		threshold: number,
 		otherSignatories: string[],
-		maybeTimepoint: string,
+		maybeTimepointArg: number | null,
 		call: string,
 		storeCall: boolean,
 		maxWeight: number,
@@ -152,7 +159,7 @@ export class TransactionConstruct {
 		interface AsMultiArgs extends Args {
 			threshold: number;
 			otherSignatories: string[];
-			maybeTimepoint: string;
+			maybeTimepoint: AnyJson;
 			call: string;
 			storeCall: boolean;
 			maxWeight: number;
@@ -185,7 +192,11 @@ export class TransactionConstruct {
 			{
 				threshold,
 				otherSignatories,
-				maybeTimepoint,
+				maybeTimepoint: registry
+					.createType('Option<Timepoint>', {
+						Some: maybeTimepointArg,
+					})
+					.toJSON(),
 				call,
 				storeCall,
 				maxWeight,

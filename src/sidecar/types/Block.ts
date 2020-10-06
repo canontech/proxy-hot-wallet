@@ -39,7 +39,7 @@ interface Extrinsic {
 	tip: string | null;
 	hash: string;
 	info: RuntimeDispatchInfo | { error: string } | {};
-	events: SanitizedEvent;
+	events: SanitizedEvent[];
 	success: boolean;
 	paysfee: boolean | null;
 }

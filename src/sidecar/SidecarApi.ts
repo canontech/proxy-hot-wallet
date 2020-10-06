@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import { promisify } from 'util';
 
+import { sleep } from '../util/sleep';
 import { AccountBalanceInfo } from './types/AccountBalanceInfo';
 import { Block } from './types/Block';
 import { TransactionMaterial } from './types/TransactionMaterial';
@@ -9,7 +9,7 @@ type ApiResponse = {
 	data: TransactionMaterial | Block | AccountBalanceInfo;
 };
 
-export default class SidecarApi {
+export class SidecarApi {
 	private api: AxiosInstance;
 	readonly SECOND = 1_000;
 	constructor(sidecarBaseUrl: string) {
@@ -34,7 +34,7 @@ export default class SidecarApi {
 					`Attempt ${attempts} for sidecar endpoint ${uri}`
 				);
 				attempts += 1;
-				await this.sleep(2 * attempts * this.SECOND);
+				await sleep(2 * attempts * this.SECOND);
 				return await this.retryGet(uri, attempts);
 			}
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -59,7 +59,7 @@ export default class SidecarApi {
 	async getBlock(num?: number): Promise<Block> {
 		const response = num
 			? await this.retryGet(`/blocks/${num}`)
-			: await this.retryGet(`/blocks/latest`);
+			: await this.retryGet(`/blocks/head?finalized=false`);
 
 		return response.data as Block;
 	}
@@ -118,16 +118,5 @@ export default class SidecarApi {
 
 			throw e;
 		}
-	}
-
-	/**
-	 * Block code execution for `ms` milleseconds.
-	 *
-	 * @param ms milliseconds to sleep
-	 */
-	private async sleep(ms: number): Promise<void> {
-		const s = promisify(setTimeout);
-		await s(ms);
-		return;
 	}
 }

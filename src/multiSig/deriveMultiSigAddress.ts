@@ -12,6 +12,7 @@ const derivePubkey = (addresses: string[], threshold = 1): Uint8Array => {
 		0
 	);
 	payload[prefix.length] = addresses.length << 2;
+
 	const pubkeys = addresses.map((addr) => decodeAddress(addr));
 	u8aSorted(pubkeys).forEach((pubkey, idx) => {
 		payload.set(pubkey, prefix.length + 1 + idx * 32);
@@ -36,11 +37,4 @@ export const deriveMultiSigAddress = (
 ): string => {
 	const pubkey = derivePubkey(addresses, threshold);
 	return encodeAddress(pubkey, ss58Prefix);
-
-	// console.log('-'.repeat(32));
-	// console.log('Multisig address generation info');
-	// console.log(`Addresses: ${addrs.join(' ')}`);
-	// console.log(`Threshold: ${threshold}`);
-	// console.log(`Multisig Address (SS58: ${ss58Prefix}): ${msig}`);
-	// console.log('-'.repeat(32));
 };

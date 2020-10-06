@@ -1,15 +1,17 @@
-// import { generateMultiSig } from './actions/generateMultiSig';
 import { blake2AsHex } from '@polkadot/util-crypto';
 
+import { ChainSync } from './chain/ChainSync';
 import { createDemoKeyPairs } from './keyring';
 import { deriveMultiSigAddress } from './multiSig/deriveMultiSigAddress';
-import SidecarApi from './sidecar/SidecarApi';
+import { sortAddresses } from './multiSig/sortAddreses';
+import { SidecarApi } from './sidecar/SidecarApi';
 import { TransactionConstruct } from './transaction/TransactionConstruct';
 
 async function main() {
 	const sidecarUrl = 'http://127.0.0.1:8080';
 	const transactionConstruct = new TransactionConstruct(sidecarUrl);
 	const api = new SidecarApi(sidecarUrl);
+	const chainSync = new ChainSync(sidecarUrl);
 
 	// Create multiSigPair
 	const keys = await createDemoKeyPairs();
@@ -29,7 +31,7 @@ async function main() {
 	console.log('-'.repeat(32));
 
 	// Load up multiSigAccount
-	const trasnferValue = '012345678901234567890123456789';
+	const trasnferValue = '0123456789012345';
 	const transferToMultiSigCall = await transactionConstruct.balancesTransfer(
 		keys.alice.address,
 		multiSigAddress,
@@ -45,6 +47,13 @@ async function main() {
 	console.log('...submiting 🚀\n');
 	const result1 = await api.submitTransaction(signedTransferToMultiSigCall);
 	console.log(`Node response:\n`, result1);
+	console.log('...waiting for transaction inclusion');
+	const inclusionBlock = await chainSync.pollingEventListener(
+		'balances',
+		'Transfer'
+	);
+	if (!inclusionBlock) throw 'inclusionBlock null';
+	console.log(`Balances.transfer succesfully processed in ${inclusionBlock}`);
 	console.log('-'.repeat(32));
 
 	// Set the eve as a proxy
@@ -56,17 +65,18 @@ async function main() {
 		'Any',
 		50 // 50 blocks = 5 min
 	);
-
+	const maxWeight = 1000000000;
 	const makeEveProxyHash = blake2AsHex(makeEveProxyCall, 256);
 	const approveAsMulti = await transactionConstruct.multiSigApproveAsMulti(
+		keys.bob.address,
 		2,
-		addresses,
+		sortAddresses([keys.alice.address, keys.dave.address]),
 		null,
 		makeEveProxyHash,
-		1000000000
+		maxWeight
 	);
 	const signedApproveAsMultiCall = transactionConstruct.createAndSignTransaction(
-		keys.alice,
+		keys.bob,
 		approveAsMulti
 	);
 	console.log('-'.repeat(32));
@@ -75,8 +85,37 @@ async function main() {
 	console.log('...submiting 🚀\n');
 	const result2 = await api.submitTransaction(signedApproveAsMultiCall);
 	console.log(`Node response:\n`, result2);
+	const timepoint1 = await chainSync.pollingEventListener(
+		'multisig',
+		'NewMultisig'
+	);
+	if (!timepoint1) throw 'timepoint1 null';
 	console.log('-'.repeat(32));
 
+	const asMulti = await transactionConstruct.multiSigAsMulti(
+		keys.dave.address,
+		2,
+		sortAddresses([(keys.alice.address, keys.bob.address)]),
+		timepoint1,
+		makeEveProxyCall,
+		false,
+		maxWeight
+	);
+	const signedAsMultiCall = transactionConstruct.createAndSignTransaction(
+		keys.dave,
+		asMulti
+	);
+	console.log('-'.repeat(32));
+	console.log('asMulti(addProxy(Eve))');
+	console.log('transaction to submit: ', signedAsMultiCall);
+	console.log('...submiting 🚀\n');
+	const result3 = await api.submitTransaction(signedAsMultiCall);
+	console.log(`Node response:\n`, result3);
+	await chainSync.pollingEventListener('multisig', 'MultisigExecuted');
+	console.log(
+		'asMulti(addProxy(Eve)) succesfully executed, Eve is now a proxy!'
+	);
+	console.log('-'.repeat(32));
 	process.exit();
 }
 
