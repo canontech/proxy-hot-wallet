@@ -5,10 +5,10 @@ Architecture by @joepetrowski. Implementation by @emostov.
 
 ## TODO
 
-- [] Chain sync with methods that allow to specify the event to watch for
-- [] Create multisig transactions
-- [] Continue main script
-- [] Look into auto starting sidecar on script start
+-[] Chain sync with methods that allow to specify the event to watch for
+-[] Create multisig transactions
+-[] Continue main script
+-[] Look into auto starting sidecar on script start
 
 ## Pre-implementation plan
 ```

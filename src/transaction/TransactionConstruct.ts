@@ -46,7 +46,8 @@ export class TransactionConstruct {
 	}
 
 	private async fetchTransactionMaterial(
-		originAddress: string
+		originAddress: string,
+		heightParam?: number
 	): Promise<{ baseInfo: BaseInfo; registry: TypeRegistry }> {
 		const {
 			genesisHash,
@@ -55,7 +56,7 @@ export class TransactionConstruct {
 			chainName,
 			specName,
 			metadata: metadataRpc,
-		} = await this.sidecarApi.getTransactionMaterial();
+		} = await this.sidecarApi.getTransactionMaterial(heightParam);
 
 		const {
 			at: { hash: blockHash, height },
@@ -346,10 +347,12 @@ export class TransactionConstruct {
 		origin: string,
 		dest: string,
 		value: string,
+		height?: number,
 		tip?: number
 	): Promise<UnsignedCall> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
-			origin
+			origin,
+			height
 		);
 		const { metadataRpc } = baseInfo;
 

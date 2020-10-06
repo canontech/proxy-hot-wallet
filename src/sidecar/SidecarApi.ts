@@ -59,7 +59,7 @@ export class SidecarApi {
 	async getBlock(num?: number): Promise<Block> {
 		const response = num
 			? await this.retryGet(`/blocks/${num}`)
-			: await this.retryGet(`/blocks/head?finalized=false`);
+			: await this.retryGet(`/blocks/head`);
 
 		return response.data as Block;
 	}
@@ -79,17 +79,13 @@ export class SidecarApi {
 
 	// TODO clean this up so it does not use no meta option
 	async getTransactionMaterial(
-		height?: number,
-		noMeta?: boolean
+		height?: number
 	): Promise<TransactionMaterial> {
 		let uri = `transaction/material?`;
 		if (typeof height === 'number') {
-			uri += `at=${height}&`;
+			uri += `?at=${height}`;
 		}
 
-		if (typeof noMeta === 'boolean') {
-			uri += `noMeta=${noMeta.toString()}`;
-		}
 		const response = await this.retryGet(uri);
 
 		return response.data as TransactionMaterial;
