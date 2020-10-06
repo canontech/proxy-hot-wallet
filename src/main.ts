@@ -56,7 +56,9 @@ async function main() {
 		'Transfer'
 	);
 	if (!inclusionBlock) throw 'inclusionBlock null';
-	console.log(`Balances.transfer succesfully processed in ${inclusionBlock}`);
+	console.log(
+		`Balances.transfer succesfully processed in ${inclusionBlock.height}`
+	);
 	console.log('-'.repeat(32));
 
 	// Set the eve as a proxy
@@ -88,12 +90,16 @@ async function main() {
 	console.log('...submiting 🚀\n');
 	const result2 = await api.submitTransaction(signedApproveAsMultiCall);
 	console.log(`Node response:\n`, result2);
+	// TODO timepoint needs to be block number and transaction index
 	const timepoint1 = await chainSync.pollingEventListener(
 		'multisig',
 		'NewMultisig'
 	);
 	if (!timepoint1) throw 'timepoint1 null';
-	console.log('multisig to make eve a proxy createad at block ', timepoint1);
+	console.log(
+		'multisig to make eve a proxy createad at block ',
+		timepoint1.height
+	);
 	console.log('-'.repeat(32));
 
 	const asMulti = await transactionConstruct.multiSigAsMulti(
@@ -159,7 +165,7 @@ async function main() {
 		keys.charlie.address,
 		d0,
 		'0123456789012345',
-		blockInclusionD0 + 1
+		blockInclusionD0.height + 1
 	);
 	const signedTransferToD1Call = transactionConstruct.createAndSignTransaction(
 		keys.charlie,
@@ -177,7 +183,7 @@ async function main() {
 	);
 	console.log(
 		'balances.transfer to d1 sucessfully in block number ',
-		blockInclusionD1
+		blockInclusionD1?.height
 	);
 	console.log('-'.repeat(32));
 
@@ -225,7 +231,7 @@ async function main() {
 	);
 	console.log(
 		'proxy.announce of c1 sucessfully in block number ',
-		blockInclusionAnnounceC0
+		blockInclusionAnnounceC0?.height
 	);
 
 	process.exit();

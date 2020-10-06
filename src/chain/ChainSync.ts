@@ -14,12 +14,12 @@ export class ChainSync {
 		method: string,
 		// In real life you would need to check the events data, however for this demo we don't
 		_data?: string[]
-	): Promise<number | null> {
+	): Promise<{ height: number; index: number } | null> {
 		const searching = true;
 		while (searching) {
 			const block = await this.sidecarApi.getBlock();
 
-			for (const ext of block.extrinsics) {
+			for (const [idx, ext] of block.extrinsics.entries()) {
 				for (const {
 					method: { method: evMethod, pallet: evPallet },
 				} of ext.events) {
@@ -28,7 +28,10 @@ export class ChainSync {
 					}
 
 					if (evMethod === method && evPallet === pallet) {
-						return parseInt(block.number);
+						return {
+							height: parseInt(block.number),
+							index: idx,
+						};
 					}
 
 					if (pallet === evPallet && method === evMethod) throw 'hi';

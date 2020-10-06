@@ -11,6 +11,11 @@ import {
 	OptionsWithMeta,
 } from '@substrate/txwrapper/lib/util/types';
 
+interface MaybeTimepoint {
+	height: number;
+	index: number;
+}
+
 import { SidecarApi } from '../sidecar/SidecarApi';
 
 interface BaseInfo {
@@ -88,7 +93,7 @@ export class TransactionConstruct {
 		origin: string,
 		threshold: number,
 		otherSignatories: string[],
-		maybeTimepointArg: number | null,
+		maybeTimepointArg: MaybeTimepoint | null,
 		callHash: string,
 		maxWeight: number,
 		tip?: number
@@ -132,9 +137,10 @@ export class TransactionConstruct {
 					maybeTimepointArg === null
 						? null
 						: registry
-								.createType('Option<Timepoint>', {
-									Some: maybeTimepointArg,
-								})
+								.createType(
+									'Option<Timepoint>',
+									maybeTimepointArg
+								)
 								.toJSON(),
 				callHash,
 				maxWeight,
@@ -154,7 +160,7 @@ export class TransactionConstruct {
 		origin: string,
 		threshold: number,
 		otherSignatories: string[],
-		maybeTimepointArg: number | null,
+		maybeTimepointArg: MaybeTimepoint | null,
 		call: string,
 		storeCall: boolean,
 		maxWeight: number,
@@ -197,9 +203,7 @@ export class TransactionConstruct {
 				threshold,
 				otherSignatories,
 				maybeTimepoint: registry
-					.createType('Option<Timepoint>', {
-						Some: maybeTimepointArg,
-					})
+					.createType('Option<Timepoint>', maybeTimepointArg)
 					.toJSON(),
 				call,
 				storeCall,
