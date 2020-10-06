@@ -128,11 +128,14 @@ export class TransactionConstruct {
 			{
 				threshold,
 				otherSignatories,
-				maybeTimepoint: registry
-					.createType('Option<Timepoint>', {
-						Some: maybeTimepointArg,
-					})
-					.toJSON(),
+				maybeTimepoint:
+					maybeTimepointArg === null
+						? null
+						: registry
+								.createType('Option<Timepoint>', {
+									Some: maybeTimepointArg,
+								})
+								.toJSON(),
 				callHash,
 				maxWeight,
 			},

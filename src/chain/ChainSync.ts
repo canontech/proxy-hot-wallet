@@ -24,11 +24,7 @@ export class ChainSync {
 					method: { method: evMethod, pallet: evPallet },
 				} of ext.events) {
 					if (evMethod === 'ExtrinsicFailed') {
-						// throw `unexepcted extrinsic failure at block number ${block.number}`;
-						console.log(
-							`unexepcted extrinsic failure at block number ${block.number}`
-						);
-						return parseInt(block.number);
+						throw `unexepcted extrinsic failure at block number ${block.number}`;
 					}
 
 					if (evMethod === method && evPallet === pallet) {
@@ -39,7 +35,7 @@ export class ChainSync {
 				}
 			}
 
-			await sleep(this.SECOND / 2);
+			await sleep(this.SECOND);
 		}
 
 		return null;
