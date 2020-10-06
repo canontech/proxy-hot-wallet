@@ -40,14 +40,11 @@ async function main() {
 		transferToMultiSigCall
 	);
 	console.log('-'.repeat(32));
-	console.log(`Balances.transfer info`);
-	console.log(`    origin: Alice (${keys.alice.address})`);
-	console.log(`    dest: Multisig Address (${multiSigAddress})`);
-	console.log(`    value: ${trasnferValue}`);
+	console.log(`Balances.transfer to the multiSig address from Alice`);
 	console.log(`transaction to submit: ${signedTransferToMultiSigCall}\n`);
 	console.log('...submiting 🚀\n');
-	const result = await api.submitTransaction(signedTransferToMultiSigCall);
-	console.log(`Node response:\n`, result);
+	const result1 = await api.submitTransaction(signedTransferToMultiSigCall);
+	console.log(`Node response:\n`, result1);
 	console.log('-'.repeat(32));
 
 	// Set the eve as a proxy
@@ -57,10 +54,28 @@ async function main() {
 		multiSigAddress,
 		keys.eve.address,
 		'Any',
-		50
+		50 // 50 blocks = 5 min
 	);
 
 	const makeEveProxyHash = blake2AsHex(makeEveProxyCall, 256);
+	const approveAsMulti = await transactionConstruct.multiSigApproveAsMulti(
+		2,
+		addresses,
+		null,
+		makeEveProxyHash,
+		1000000000
+	);
+	const signedApproveAsMultiCall = transactionConstruct.createAndSignTransaction(
+		keys.alice,
+		approveAsMulti
+	);
+	console.log('-'.repeat(32));
+	console.log('approveAsMulti(h(addProxy(Eve)))');
+	console.log(`transaction to submit: ${signedApproveAsMultiCall}`);
+	console.log('...submiting 🚀\n');
+	const result2 = await api.submitTransaction(signedApproveAsMultiCall);
+	console.log(`Node response:\n`, result2);
+	console.log('-'.repeat(32));
 
 	process.exit();
 }

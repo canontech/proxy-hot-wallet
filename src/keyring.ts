@@ -21,7 +21,6 @@ export async function createDemoKeyPairs(): Promise<Keys> {
 
 	const keyring: Keyring = new Keyring();
 
-	// Alice is the standard sudo account on dev chains (that have the sudo pallet)
 	const alice = keyring.addFromUri('//Alice', { name: 'Alice' }, 'sr25519');
 	const aliceStash = keyring.addFromUri(
 		'//Alice//stash',

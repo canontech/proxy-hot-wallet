@@ -3,6 +3,11 @@ import { TRANSACTION_VERSION } from '@polkadot/types/extrinsic/v4/Extrinsic';
 import * as txwrapper from '@substrate/txwrapper';
 import { KeyringPair } from '@substrate/txwrapper';
 import { createMetadata } from '@substrate/txwrapper/lib/util';
+import { Args, createMethod } from '@substrate/txwrapper/lib/util/method';
+import {
+	BaseTxInfo,
+	OptionsWithMeta,
+} from '@substrate/txwrapper/lib/util/types';
 
 import SidecarApi from '../sidecar/SidecarApi';
 
@@ -30,12 +35,12 @@ type SpecName = 'kusama' | 'polkadot' | 'westend';
 // TODO - all transaction method could optionally take in metadata RPC to avoid
 // expensive calls by using  `/transaction/material?noMeta=true`.
 export class TransactionConstruct {
-	private api: SidecarApi;
+	private sidecarApi: SidecarApi;
 	private readonly ERA_PERIOD = 64;
 	private readonly EXTRINSIC_VERSION = TRANSACTION_VERSION;
 
 	constructor(sidecarURL: string) {
-		this.api = new SidecarApi(sidecarURL);
+		this.sidecarApi = new SidecarApi(sidecarURL);
 	}
 
 	private async fetchTransactionMaterial(
@@ -48,12 +53,12 @@ export class TransactionConstruct {
 			chainName,
 			specName,
 			metadata: metadataRpc,
-		} = await this.api.getTransactionMaterial();
+		} = await this.sidecarApi.getTransactionMaterial();
 
 		const {
 			at: { hash: blockHash, height },
 			nonce,
-		} = await this.api.getAccountBalance(originAddress);
+		} = await this.sidecarApi.getAccountBalance(originAddress);
 
 		const registry = txwrapper.getRegistry(
 			chainName as ChainName,
@@ -74,6 +79,126 @@ export class TransactionConstruct {
 		};
 
 		return { baseInfo, registry };
+	}
+
+	async multiSigApproveAsMulti(
+		origin: string,
+		threshold: number,
+		otherSignatories: string[],
+		maybeTimepoint: string | number | null,
+		callHash: string,
+		maxWeight: number,
+		tip?: number
+	): Promise<UnsignedCall> {
+		interface ApproveAsMultiArgs extends Args {
+			threshold: number;
+			otherSignatories: string[];
+			maybeTimepoint: string | number | null;
+			callHash: string;
+			maxWeight: number;
+		}
+
+		const approveAsMulti = function (
+			args: ApproveAsMultiArgs,
+			info: BaseTxInfo,
+			options: OptionsWithMeta
+		): txwrapper.UnsignedTransaction {
+			return createMethod(
+				{
+					method: {
+						args,
+						name: 'approveAsMulti',
+						pallet: 'multisig',
+					},
+					...info,
+				},
+				options
+			);
+		};
+
+		const { baseInfo, registry } = await this.fetchTransactionMaterial(
+			origin
+		);
+		const { metadataRpc } = baseInfo;
+
+		const unsigned = approveAsMulti(
+			{
+				threshold,
+				otherSignatories,
+				maybeTimepoint,
+				callHash,
+				maxWeight,
+			},
+			{
+				address: origin,
+				tip,
+				...baseInfo,
+			},
+			{ metadataRpc, registry }
+		);
+
+		return { unsigned, metadataRpc, registry };
+	}
+
+	async multiSigAsMulti(
+		threshold: number,
+		otherSignatories: string[],
+		maybeTimepoint: string,
+		call: string,
+		storeCall: boolean,
+		maxWeight: number,
+		tip?: number
+	): Promise<UnsignedCall> {
+		interface AsMultiArgs extends Args {
+			threshold: number;
+			otherSignatories: string[];
+			maybeTimepoint: string;
+			call: string;
+			storeCall: boolean;
+			maxWeight: number;
+		}
+
+		const asMulti = function (
+			args: AsMultiArgs,
+			info: BaseTxInfo,
+			options: OptionsWithMeta
+		): txwrapper.UnsignedTransaction {
+			return createMethod(
+				{
+					method: {
+						args,
+						name: 'asMulti',
+						pallet: 'multisig',
+					},
+					...info,
+				},
+				options
+			);
+		};
+
+		const { baseInfo, registry } = await this.fetchTransactionMaterial(
+			origin
+		);
+		const { metadataRpc } = baseInfo;
+
+		const unsigned = asMulti(
+			{
+				threshold,
+				otherSignatories,
+				maybeTimepoint,
+				call,
+				storeCall,
+				maxWeight,
+			},
+			{
+				address: origin,
+				tip,
+				...baseInfo,
+			},
+			{ metadataRpc, registry }
+		);
+
+		return { unsigned, metadataRpc, registry };
 	}
 
 	// TODO proxyType can be of type string literal "Any" | "Democracy" etc..
@@ -109,6 +234,7 @@ export class TransactionConstruct {
 
 	async proxyProxyAnnounced(
 		origin: string,
+		real: string,
 		delegate: string,
 		forceProxyType: string,
 		call: string,
@@ -121,6 +247,7 @@ export class TransactionConstruct {
 
 		const unsigned = txwrapper.proxy.proxyAnnounced(
 			{
+				real,
 				delegate,
 				forceProxyType,
 				call,
@@ -139,7 +266,7 @@ export class TransactionConstruct {
 	async proxyAnnounce(
 		origin: string,
 		real: string,
-		callhash: string,
+		callHash: string,
 		tip?: number
 	): Promise<UnsignedCall> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
@@ -148,7 +275,7 @@ export class TransactionConstruct {
 		const { metadataRpc } = baseInfo;
 
 		const unsigned = txwrapper.proxy.announce(
-			{ real, callhash },
+			{ real, callHash },
 			{
 				address: origin,
 				tip,
@@ -192,7 +319,7 @@ export class TransactionConstruct {
 			origin
 		);
 		const { metadataRpc } = baseInfo;
-		const unsigned = txwrapper.balances.transfer(
+		const unsigned = txwrapper.proxy.rejectAnnouncement(
 			{ delegate, callHash },
 			{
 				address: origin,

@@ -11,7 +11,8 @@
     "lint": "tsc && eslint . --ext ts",
     "build": "tsc",
     "main": "node ./build/main.js",
-    "start": "yarn run build && yarn run main"
+    "start": "yarn run build && yarn run main",
+    "demo": "yarn run main"
   },
   "dependencies": {
     "@polkadot/util-crypto": "^3.5.1",
