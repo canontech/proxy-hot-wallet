@@ -1,6 +1,5 @@
-import { Option, TypeRegistry } from '@polkadot/types';
-import { TRANSACTION_VERSION } from '@polkadot/types/extrinsic/v4/Extrinsic';
-import { Timepoint } from '@polkadot/types/interfaces';
+import { TypeRegistry } from '@polkadot/types';
+import { EXTRINSIC_VERSION } from '@polkadot/types/extrinsic/v4/Extrinsic';
 import { AnyJson } from '@polkadot/types/types';
 import * as txwrapper from '@substrate/txwrapper';
 import { KeyringPair } from '@substrate/txwrapper';
@@ -29,7 +28,7 @@ interface BaseInfo {
 	transactionVersion: number;
 }
 
-interface UnsignedCall {
+export interface UnsignedCall {
 	unsigned: txwrapper.UnsignedTransaction;
 	metadataRpc: string;
 	registry: TypeRegistry;
@@ -44,9 +43,8 @@ type SpecName = 'kusama' | 'polkadot' | 'westend';
 export class TransactionConstruct {
 	private sidecarApi: SidecarApi;
 	private readonly ERA_PERIOD = 64;
-	private readonly EXTRINSIC_VERSION = TRANSACTION_VERSION;
 
-	constructor(sidecarURL: string) {
+	constructor(sidecarURL: string, readonly coldStorage: string) {
 		this.sidecarApi = new SidecarApi(sidecarURL);
 	}
 
@@ -412,7 +410,7 @@ export class TransactionConstruct {
 
 		const { signature } = registry
 			.createType('ExtrinsicPayload', signingPayload, {
-				version: this.EXTRINSIC_VERSION,
+				version: EXTRINSIC_VERSION,
 			})
 			.sign(origin);
 
@@ -420,5 +418,24 @@ export class TransactionConstruct {
 			registry,
 			metadataRpc,
 		});
+	}
+
+	safetyWorker({ unsigned, registry, metadataRpc }: UnsignedCall): boolean {
+		const decodedC0 = txwrapper.decode(unsigned, {
+			registry,
+			metadataRpc,
+		});
+		console.log(
+			'decoded attempt to transfer from derivative account:\n',
+			decodedC0.method.args
+		);
+		const isColdStorageAddress =
+			decodedC0.method.args.dest === this.coldStorage;
+		console.log(
+			'Destination is correct cold storage: ',
+			isColdStorageAddress
+		);
+
+		return isColdStorageAddress;
 	}
 }

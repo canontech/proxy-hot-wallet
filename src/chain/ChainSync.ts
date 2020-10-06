@@ -1,4 +1,7 @@
+import * as txwrapper from '@substrate/txwrapper';
+
 import { SidecarApi } from '../sidecar/SidecarApi';
+import { UnsignedCall } from '../transaction/TransactionConstruct';
 import { sleep } from '../util/sleep';
 
 export class ChainSync {
@@ -28,13 +31,15 @@ export class ChainSync {
 					}
 
 					if (evMethod === method && evPallet === pallet) {
+						await sleep(this.SECOND / 2);
 						return {
 							height: parseInt(block.number),
 							index: idx,
 						};
 					}
 
-					if (pallet === evPallet && method === evMethod) throw 'hi';
+					if (pallet === evPallet && method === evMethod)
+						throw 'debug error';
 				}
 			}
 
@@ -42,6 +47,20 @@ export class ChainSync {
 		}
 
 		return null;
+	}
+
+	async waitUntilHeight(height: number): Promise<number> {
+		const waiting = true;
+		while (waiting) {
+			const block = await this.sidecarApi.getBlock();
+			const curHeight = parseInt(block.number);
+			if (curHeight >= height) {
+				return curHeight;
+			}
+			await sleep(this.SECOND);
+		}
+
+		return -1;
 	}
 
 	private eventDataEq(d1: string[], d2: string[]) {

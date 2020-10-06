@@ -1,9 +1,10 @@
-import { blake2AsHex, deriveAddress } from '@polkadot/util-crypto';
+import { blake2AsHex } from '@polkadot/util-crypto';
 import {
 	encodeDerivedAddress,
 	encodeMultiAddress,
 } from '@polkadot/util-crypto';
 
+// import * as txwrapper from '@substrate/txwrapper';
 import { sortAddresses } from './address/sortAddreses';
 import { ChainSync } from './chain/ChainSync';
 import { createDemoKeyPairs } from './keyring';
@@ -12,12 +13,14 @@ import { TransactionConstruct } from './transaction/TransactionConstruct';
 
 async function main() {
 	const sidecarUrl = 'http://127.0.0.1:8080';
-	const transactionConstruct = new TransactionConstruct(sidecarUrl);
+	const keys = await createDemoKeyPairs();
+	const transactionConstruct = new TransactionConstruct(
+		sidecarUrl,
+		keys.aliceStash.address
+	);
 	const api = new SidecarApi(sidecarUrl);
 	const chainSync = new ChainSync(sidecarUrl);
 
-	// Create multiSigPair
-	const keys = await createDemoKeyPairs();
 	const addresses = [keys.alice.address, keys.bob.address, keys.dave.address];
 	const threshold = 2;
 	const ss58Prefix = 42;
@@ -61,7 +64,7 @@ async function main() {
 	);
 	console.log('-'.repeat(32));
 
-	// Set the eve as a proxy
+	// // Set the eve as a proxy
 	const {
 		unsigned: { method: makeEveProxyCall },
 	} = await transactionConstruct.proxyAddProxy(
@@ -72,10 +75,11 @@ async function main() {
 	);
 	const maxWeight = 1000000000;
 	const makeEveProxyHash = blake2AsHex(makeEveProxyCall, 256);
+	console.log('makeEveProxyHash ', makeEveProxyHash);
 	const approveAsMulti = await transactionConstruct.multiSigApproveAsMulti(
 		keys.bob.address,
 		2,
-		sortAddresses([keys.alice.address, keys.dave.address]),
+		sortAddresses([keys.alice.address, keys.dave.address], ss58Prefix),
 		null,
 		makeEveProxyHash,
 		maxWeight
@@ -97,15 +101,14 @@ async function main() {
 	);
 	if (!timepoint1) throw 'timepoint1 null';
 	console.log(
-		'multisig to make eve a proxy createad at block ',
-		timepoint1.height
+		'multisig to make eve a proxy createad at time point ',
+		timepoint1
 	);
-	console.log('-'.repeat(32));
 
 	const asMulti = await transactionConstruct.multiSigAsMulti(
 		keys.dave.address,
 		2,
-		sortAddresses([(keys.alice.address, keys.bob.address)]),
+		sortAddresses([keys.alice.address, keys.bob.address], ss58Prefix),
 		timepoint1,
 		makeEveProxyCall,
 		false,
@@ -194,24 +197,23 @@ async function main() {
 	console.log('-'.repeat(32));
 
 	const {
-		unsigned: { method: transferToStashCall },
+		unsigned: transferToColdStorage,
+		registry: transferToColdStorageRegistry,
+		metadataRpc: transferToColdStorageMetadataRpc,
 	} = await transactionConstruct.balancesTransfer(
 		d0,
 		keys.aliceStash.address,
 		'0123456789012345'
 	);
-	// const transferToStash = (await transactionConstruct.balancesTransfer(d0, keys.aliceStash.address, '0123456789012345'));
-	// const transferToStashCallHash = blake2AsHex(transferToStashCall, 256);
-	const {
-		unsigned: { method: c0Call },
-	} = await transactionConstruct.utilityAsDerivative(
+	const { unsigned: c0 } = await transactionConstruct.utilityAsDerivative(
 		multiSigAddress,
 		0,
-		transferToStashCall
+		transferToColdStorage.method
 	);
+	const c0Call = c0.method;
 	const c0Hash = blake2AsHex(c0Call, 256);
 	const proxyAnnounceC0 = await transactionConstruct.proxyAnnounce(
-		keys.alice.address,
+		keys.eve.address,
 		multiSigAddress,
 		c0Hash
 	);
@@ -220,7 +222,7 @@ async function main() {
 		proxyAnnounceC0
 	);
 	console.log('-'.repeat(32));
-	console.log('proxied balances.transfer from d0 to cold storage');
+	console.log('announce proxied balances.transfer from d0 to cold storage');
 	console.log('transaction to submit: ', signedProxyAnnounceC0);
 	console.log('...submiting 🚀\n');
 	const result6 = await api.submitTransaction(signedProxyAnnounceC0);
@@ -229,12 +231,75 @@ async function main() {
 		'proxy',
 		'Announced'
 	);
+	if (!blockInclusionAnnounceC0) throw 'blockInclusionAnnounceC0 is null';
 	console.log(
-		'proxy.announce of c1 sucessfully in block number ',
-		blockInclusionAnnounceC0?.height
+		'proxy.announce of c1 sucessfully at ',
+		blockInclusionAnnounceC0
+	);
+	console.log('-'.repeat(32));
+
+	console.log('-'.repeat(32));
+	console.log(
+		'sending balances.transfer from d0 to cold storage to worker for decoding'
+	);
+	console.log('txVersion', transferToColdStorage.transactionVersion);
+	transactionConstruct.safetyWorker({
+		unsigned: transferToColdStorage,
+		registry: transferToColdStorageRegistry,
+		metadataRpc: transferToColdStorageMetadataRpc,
+	});
+	console.log(
+		`now that transacstion is ok, wait 50 blocks after announcement (${
+			blockInclusionAnnounceC0?.height + 50
+		})` + 'for the delay to pass and execute with proxyAnnounced... \n⌛️\n'
+	);
+	console.log(
+		'This process will continue in the background so the demo can keep moving forward'
+	);
+	void chainSync
+		.waitUntilHeight(blockInclusionAnnounceC0?.height + 50)
+		.then(() => {
+			const proxyAnnouncedCall = await transactionConstruct.proxyProxyAnnounced(
+				keys.eve.address,
+				multiSigAddress,
+				keys.eve.address,
+				'Any',
+				c0Call
+			);
+			const signedProxyAnnoucedTx = transactionConstruct.createAndSignTransaction(
+				keys.eve,
+				proxyAnnouncedCall
+			);
+			console.log(
+				'proxyAnnounced(multiAsDeriv(balances.transfer(coldStorage)))'
+			);
+			console.log('transaction to submit: ', signedProxyAnnoucedTx);
+			console.log('\n...submiting 🚀\n');
+			const result7 = await api.submitTransaction(signedProxyAnnoucedTx);
+			console.log(`Node response:\n`, result7);
+			const blockInclusionProxyAnnounced = await chainSync.pollingEventListener(
+				'balances',
+				'Transfer'
+			);
+			console.log(
+				'balances succesfully transfered to call storage through proxy at',
+				blockInclusionProxyAnnounced
+			);
+		});
+
+	console.log(
+		'Now demonstrating how to stop an attacker from using the proxy to send funds to themselves.'
 	);
 
-	process.exit();
+	// const {
+	// 	unsigned: transferToAttacker,
+	// 	registry: transferToAttackerRegistry,
+	// 	metadataRpc: transferToAttackerMetadataRpc,
+	// } = await transactionConstruct.balancesTransfer(
+	// 	d1,
+	// 	keys.aliceStash.address,
+	// 	'0123456789012345'
+	// );
 }
 
 main().catch(console.log);
