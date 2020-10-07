@@ -3,9 +3,8 @@ Demo for a safe and effective custodial hot wallet using features unique to Subs
 
 Architecture by @joepetrowski. Implementation by @emostov.
 
-## TODO
-- [ ] Clean up main variable names and console log statements
-- [ ] Make transaction methods take in an options object for tip, origin, material fetch height, etc
+## Disclaimer
+This repo is only for demonstration purposes. None of the code should be used as is for production purposes.
 
 ## Demo Outline
 ```
@@ -49,3 +48,8 @@ Demonstrate attack path
 	- multisig.as_multi(proxy.reject_announcement(hash(C1)))
 	- multisig.as_multi(proxy.reject_announcement(hash(C1)))
 ```
+
+## TODO
+- [ ] Clean up main variable names and console log statements
+- [ ] Make transaction methods take in an options object for tip, origin, material fetch height, etc
+- [ ] Reorg file structure
