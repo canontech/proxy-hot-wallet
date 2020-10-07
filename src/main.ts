@@ -4,7 +4,6 @@ import {
 	encodeMultiAddress,
 } from '@polkadot/util-crypto';
 
-// import * as txwrapper from '@substrate/txwrapper';
 import { sortAddresses } from './address/sortAddreses';
 import { ChainSync } from './chain/ChainSync';
 import { createDemoKeyPairs } from './keyring';
@@ -64,14 +63,14 @@ async function main() {
 	);
 	console.log('-'.repeat(32));
 
-	// // Set the eve as a proxy
+	const delayPeriod = 10; // 50 blocks = 5 min
 	const {
 		unsigned: { method: makeEveProxyCall },
 	} = await transactionConstruct.proxyAddProxy(
 		multiSigAddress,
 		keys.eve.address,
 		'Any',
-		50 // 50 blocks = 5 min
+		delayPeriod
 	);
 	const maxWeight = 1000000000;
 	const makeEveProxyHash = blake2AsHex(makeEveProxyCall, 256);
@@ -130,8 +129,8 @@ async function main() {
 	);
 	console.log('-'.repeat(32));
 
-	const d0 = encodeDerivedAddress(multiSigAddress, 1, ss58Prefix);
-	const d1 = encodeDerivedAddress(multiSigAddress, 0, ss58Prefix);
+	const d0 = encodeDerivedAddress(multiSigAddress, 0, ss58Prefix);
+	const d1 = encodeDerivedAddress(multiSigAddress, 1, ss58Prefix);
 	console.log('-'.repeat(32));
 	console.log('Created two derived addresses for for the multisig address');
 	console.log('Multisig derive 0: ', d0);
@@ -141,7 +140,7 @@ async function main() {
 	const transferToD0 = await transactionConstruct.balancesTransfer(
 		keys.charlie.address,
 		d0,
-		'0123456789012345'
+		'1234567890123450'
 	);
 	const signedTransferToD0Call = transactionConstruct.createAndSignTransaction(
 		keys.charlie,
@@ -167,7 +166,7 @@ async function main() {
 	const transferToD1 = await transactionConstruct.balancesTransfer(
 		keys.charlie.address,
 		d0,
-		'0123456789012345',
+		'1234567890123450',
 		blockInclusionD0.height + 1
 	);
 	const signedTransferToD1Call = transactionConstruct.createAndSignTransaction(
@@ -203,7 +202,7 @@ async function main() {
 	} = await transactionConstruct.balancesTransfer(
 		d0,
 		keys.aliceStash.address,
-		'0123456789012345'
+		'1'
 	);
 	const { unsigned: c0 } = await transactionConstruct.utilityAsDerivative(
 		multiSigAddress,
@@ -225,8 +224,8 @@ async function main() {
 	console.log('announce proxied balances.transfer from d0 to cold storage');
 	console.log('transaction to submit: ', signedProxyAnnounceC0);
 	console.log('...submiting 🚀\n');
-	const result6 = await api.submitTransaction(signedProxyAnnounceC0);
-	console.log(`Node response:\n`, result6);
+	const result7 = await api.submitTransaction(signedProxyAnnounceC0);
+	console.log(`Node response:\n`, result7);
 	const blockInclusionAnnounceC0 = await chainSync.pollingEventListener(
 		'proxy',
 		'Announced'
@@ -236,29 +235,20 @@ async function main() {
 		'proxy.announce of c1 sucessfully at ',
 		blockInclusionAnnounceC0
 	);
-	console.log('-'.repeat(32));
-
-	console.log('-'.repeat(32));
 	console.log(
-		'sending balances.transfer from d0 to cold storage to worker for decoding'
-	);
-	console.log('txVersion', transferToColdStorage.transactionVersion);
-	transactionConstruct.safetyWorker({
-		unsigned: transferToColdStorage,
-		registry: transferToColdStorageRegistry,
-		metadataRpc: transferToColdStorageMetadataRpc,
-	});
-	console.log(
-		`now that transacstion is ok, wait 50 blocks after announcement (${
-			blockInclusionAnnounceC0?.height + 50
-		})` + 'for the delay to pass and execute with proxyAnnounced... \n⌛️\n'
+		`now that the transacstion was succesfuly submitted, wait ${delayPeriod} blocks after announcement (${
+			blockInclusionAnnounceC0?.height + delayPeriod
+			// blockInclusionAnnounceC0?.height + 50
+		}) ` +
+			'for the delay periood to pass and execute with proxyAnnounced... \n⌛️\n'
 	);
 	console.log(
-		'This process will continue in the background so the demo can keep moving forward'
+		'there is a process in the background that will fire proxyAnnounced to execute the actual balance ' +
+			'transfer to cold storage once the delay period is over; the demo will keep moving forward'
 	);
-	void chainSync
-		.waitUntilHeight(blockInclusionAnnounceC0?.height + 50)
-		.then(() => {
+	await chainSync
+		.waitUntilHeight(blockInclusionAnnounceC0?.height + delayPeriod)
+		.then(async () => {
 			const proxyAnnouncedCall = await transactionConstruct.proxyProxyAnnounced(
 				keys.eve.address,
 				multiSigAddress,
@@ -270,8 +260,9 @@ async function main() {
 				keys.eve,
 				proxyAnnouncedCall
 			);
+			console.log('-'.repeat(32));
 			console.log(
-				'proxyAnnounced(multiAsDeriv(balances.transfer(coldStorage)))'
+				'(background task) proxyAnnounced(multiAsDeriv(balances.transfer(coldStorage)))'
 			);
 			console.log('transaction to submit: ', signedProxyAnnoucedTx);
 			console.log('\n...submiting 🚀\n');
@@ -282,24 +273,189 @@ async function main() {
 				'Transfer'
 			);
 			console.log(
-				'balances succesfully transfered to call storage through proxy at',
+				'balances succesfully transfered to cold storage through proxy at',
 				blockInclusionProxyAnnounced
 			);
+			console.log('-'.repeat(32));
 		});
 
 	console.log(
-		'Now demonstrating how to stop an attacker from using the proxy to send funds to themselves.'
+		'simultanously sending balanceds.transfer(cold storage) tx the safety worker for decoding' +
+			' and verification that the transfer is going to cold storage'
+	);
+	transactionConstruct.safetyWorker({
+		unsigned: transferToColdStorage,
+		registry: transferToColdStorageRegistry,
+		metadataRpc: transferToColdStorageMetadataRpc,
+	});
+
+	console.log('-'.repeat(32));
+
+	console.log(
+		'\nNow demonstrating how to stop an attacker from using the proxy to send funds to themselves.'
 	);
 
-	// const {
-	// 	unsigned: transferToAttacker,
-	// 	registry: transferToAttackerRegistry,
-	// 	metadataRpc: transferToAttackerMetadataRpc,
-	// } = await transactionConstruct.balancesTransfer(
-	// 	d1,
-	// 	keys.aliceStash.address,
-	// 	'0123456789012345'
-	// );
+	const {
+		unsigned: transferToAttacker,
+		registry: transferToAttackerRegistry,
+		metadataRpc: transferToAttackerMetadataRpc,
+	} = await transactionConstruct.balancesTransfer(
+		d1,
+		keys.attacker.address,
+		'01234666'
+	);
+	const { unsigned: c1 } = await transactionConstruct.utilityAsDerivative(
+		multiSigAddress,
+		1,
+		transferToAttacker.method
+	);
+	const c1Call = c1.method;
+	const c1Hash = blake2AsHex(c1Call, 256);
+	const proxyAnnounceC1 = await transactionConstruct.proxyAnnounce(
+		keys.eve.address,
+		multiSigAddress,
+		c1Hash
+	);
+	const signedProxyAnnounceC1 = transactionConstruct.createAndSignTransaction(
+		keys.eve,
+		proxyAnnounceC1
+	);
+	console.log('-'.repeat(32));
+	console.log('announce proxied balances.transfer from d1 to Attacker');
+	console.log('transaction to submit: ', signedProxyAnnounceC1);
+	console.log('...submiting 🚀\n');
+	const result8 = await api.submitTransaction(signedProxyAnnounceC1);
+	console.log(`Node response:\n`, result8);
+	const blockInclusionAnnounceC1 = await chainSync.pollingEventListener(
+		'proxy',
+		'Announced'
+	);
+	if (!blockInclusionAnnounceC1) throw 'blockInclusionAnnounceC1 is null';
+	console.log('proxy.announce of c1 sucessful at ', blockInclusionAnnounceC1);
+	console.log('-'.repeat(32));
+
+	console.log(
+		`now that the transacstion was succesfuly submitted, wait ${delayPeriod} blocks after announcement (${
+			blockInclusionAnnounceC0?.height + delayPeriod
+		}) ` +
+			'for the delay periood to pass and execute with proxyAnnounced...\n⌛️\n' +
+			'...but hopefully we can stop the Attacker before then!'
+	);
+	console.log(
+		'there is a process in the background that will fire proxyAnnounced to execute the actual balance ' +
+			'transfer to the attacker if we do not act fast enough; the demo will keep moving forward'
+	);
+	void chainSync
+		.waitUntilHeight(blockInclusionAnnounceC1?.height + delayPeriod)
+		.then(async () => {
+			const proxyAnnouncedCallC1 = await transactionConstruct.proxyProxyAnnounced(
+				keys.eve.address,
+				multiSigAddress,
+				keys.eve.address,
+				'Any',
+				c1Call
+			);
+			const signedProxyAnnoucedTxC1 = transactionConstruct.createAndSignTransaction(
+				keys.eve,
+				proxyAnnouncedCallC1
+			);
+			console.log('-'.repeat(32));
+			console.log(
+				'(background task) proxyAnnounced(multiAsDeriv(balances.transfer(Attacker)))'
+			);
+			console.log('transaction to submit: ', signedProxyAnnoucedTxC1);
+			console.log('\n...submiting 🚀\n');
+			const result7 = await api.submitTransaction(
+				signedProxyAnnoucedTxC1
+			);
+			console.log(`Node response:\n`, result7);
+			let blockInclusionProxyAnnouncedC1;
+			try {
+				blockInclusionProxyAnnouncedC1 = await chainSync.pollingEventListener(
+					'balances',
+					'Transfer'
+				);
+			} catch {
+				console.log('Attacker tranasction failed!');
+				process.exit(1);
+			}
+			console.log(
+				'balances succesfully transfered to Attacker through proxy at',
+				blockInclusionProxyAnnouncedC1
+			);
+			console.log('Security system failed!');
+			process.exit(1);
+		});
+
+	console.log(
+		'simultanously sending balanceds.transfer(attacker) tx the safety worker for decoding' +
+			' and verification of the transfer - the system will catch the attacker here and kickoff' +
+			' security procedure to stop the malicious transfer'
+	);
+	const isSafe = transactionConstruct.safetyWorker({
+		unsigned: transferToAttacker,
+		registry: transferToAttackerRegistry,
+		metadataRpc: transferToAttackerMetadataRpc,
+	});
+	if (isSafe) throw 'error when processing unsafe transaction';
+	const {
+		unsigned: { method: removeProxiesCall },
+	} = await transactionConstruct.proxyRemoveProxies(multiSigAddress);
+	const removeProxiesHash = blake2AsHex(removeProxiesCall);
+	const removeProxiesApproveAsMulti = await transactionConstruct.multiSigApproveAsMulti(
+		keys.alice.address,
+		2,
+		sortAddresses([keys.bob.address, keys.dave.address]),
+		null,
+		removeProxiesHash,
+		maxWeight
+	);
+	const signedRemoveProxiesApproveAsMulti = transactionConstruct.createAndSignTransaction(
+		keys.alice,
+		removeProxiesApproveAsMulti
+	);
+	console.log('-'.repeat(32));
+	console.log('approveAsMulti(h(removeProxies(multisigAddress)))');
+	console.log(`transaction to submit: ${signedRemoveProxiesApproveAsMulti}`);
+	console.log('...submiting 🚀\n');
+	const result9 = await api.submitTransaction(
+		signedRemoveProxiesApproveAsMulti
+	);
+	console.log(`Node response:\n`, result9);
+	// TODO timepoint needs to be block number and transaction index
+	const timepoint2 = await chainSync.pollingEventListener(
+		'multisig',
+		'NewMultisig'
+	);
+	if (!timepoint2) throw 'timepoint1 null';
+	console.log('removeProxies(multisigAddress) succeeded at ', timepoint2);
+	console.log('-'.repeat(32));
+
+	console.log('-'.repeat(32));
+	const removeProxiesAsMulti = await transactionConstruct.multiSigAsMulti(
+		keys.bob.address,
+		2,
+		sortAddresses([keys.alice.address, keys.dave.address]),
+		timepoint2,
+		removeProxiesCall,
+		true,
+		maxWeight
+	);
+	const signedremoveProxiesAsMulti = transactionConstruct.createAndSignTransaction(
+		keys.bob,
+		removeProxiesAsMulti
+	);
+	console.log('asMulti(removeProxies(multisigAddress))');
+	console.log(`transaction to submit: ${signedremoveProxiesAsMulti}`);
+	console.log('...submiting 🚀\n');
+	const result10 = await api.submitTransaction(signedremoveProxiesAsMulti);
+	console.log(`Node response:\n`, result10);
+	const proxyRemovedAt = await chainSync.pollingEventListener(
+		'proxy',
+		'ProxyExecuted'
+	);
+	if (!proxyRemovedAt) throw 'proxyRemovedAt is null';
+	console.log('Crisis averted 👩‍🚒 attacker transfer cancelled 👌!');
 }
 
 main().catch(console.log);

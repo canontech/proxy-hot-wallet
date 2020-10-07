@@ -10,6 +10,7 @@ export type Keys = {
 	eve: KeyringPair;
 	charlie: KeyringPair;
 	ferdie: KeyringPair;
+	attacker: KeyringPair;
 };
 
 export async function createDemoKeyPairs(): Promise<Keys> {
@@ -40,6 +41,11 @@ export async function createDemoKeyPairs(): Promise<Keys> {
 		{ name: 'Ferdie' },
 		'sr25519'
 	);
+	const attacker = keyring.addFromUri(
+		'//Attacker',
+		{ name: 'Attacker' },
+		'sr25519'
+	);
 
 	return {
 		// Comments represent roles in proxy + multisig hot wallet demo
@@ -57,5 +63,6 @@ export async function createDemoKeyPairs(): Promise<Keys> {
 		charlie,
 		// extra pair for convience
 		ferdie,
+		attacker,
 	};
 }
