@@ -10,29 +10,8 @@ import {
 	OptionsWithMeta,
 } from '@substrate/txwrapper/lib/util/types';
 
-interface MaybeTimepoint {
-	height: number;
-	index: number;
-}
-
 import { SidecarApi } from '../sidecar/SidecarApi';
-
-interface BaseInfo {
-	nonce: number;
-	eraPeriod: number;
-	blockHash: string;
-	blockNumber: number;
-	specVersion: number;
-	genesisHash: string;
-	metadataRpc: string;
-	transactionVersion: number;
-}
-
-export interface UnsignedCall {
-	unsigned: txwrapper.UnsignedTransaction;
-	metadataRpc: string;
-	registry: TypeRegistry;
-}
+import { BaseInfo, MaybeTimepoint, UnsignedMaterial } from './types';
 
 type ChainName = 'Kusama' | 'Polkadot' | 'Polkadot CC1' | 'Westend';
 
@@ -95,7 +74,7 @@ export class TransactionConstruct {
 		callHash: string,
 		maxWeight: number,
 		tip?: number
-	): Promise<UnsignedCall> {
+	): Promise<UnsignedMaterial> {
 		interface ApproveAsMultiArgs extends Args {
 			threshold: number;
 			otherSignatories: string[];
@@ -163,7 +142,7 @@ export class TransactionConstruct {
 		storeCall: boolean,
 		maxWeight: number,
 		tip?: number
-	): Promise<UnsignedCall> {
+	): Promise<UnsignedMaterial> {
 		interface AsMultiArgs extends Args {
 			threshold: number;
 			otherSignatories: string[];
@@ -226,7 +205,7 @@ export class TransactionConstruct {
 		proxyType: string,
 		delay: number,
 		tip?: number
-	): Promise<UnsignedCall> {
+	): Promise<UnsignedMaterial> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
 			origin
 		);
@@ -256,7 +235,7 @@ export class TransactionConstruct {
 		forceProxyType: string,
 		call: string,
 		tip?: number
-	): Promise<UnsignedCall> {
+	): Promise<UnsignedMaterial> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
 			origin
 		);
@@ -285,7 +264,7 @@ export class TransactionConstruct {
 		real: string,
 		callHash: string,
 		tip?: number
-	): Promise<UnsignedCall> {
+	): Promise<UnsignedMaterial> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
 			origin
 		);
@@ -307,7 +286,7 @@ export class TransactionConstruct {
 	async proxyRemoveProxies(
 		origin: string,
 		tip?: number
-	): Promise<UnsignedCall> {
+	): Promise<UnsignedMaterial> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
 			origin
 		);
@@ -331,7 +310,7 @@ export class TransactionConstruct {
 		delegate: string,
 		callHash: string,
 		tip?: number
-	): Promise<UnsignedCall> {
+	): Promise<UnsignedMaterial> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
 			origin
 		);
@@ -354,7 +333,7 @@ export class TransactionConstruct {
 		value: string,
 		height?: number,
 		tip?: number
-	): Promise<UnsignedCall> {
+	): Promise<UnsignedMaterial> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
 			origin,
 			height
@@ -379,7 +358,7 @@ export class TransactionConstruct {
 		index: number,
 		call: string,
 		tip?: number
-	): Promise<UnsignedCall> {
+	): Promise<UnsignedMaterial> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial(
 			origin
 		);
@@ -400,7 +379,7 @@ export class TransactionConstruct {
 
 	createAndSignTransaction(
 		origin: KeyringPair,
-		{ unsigned, registry, metadataRpc }: UnsignedCall
+		{ unsigned, registry, metadataRpc }: UnsignedMaterial
 	): string {
 		registry.setMetadata(createMetadata(registry, metadataRpc));
 
@@ -420,7 +399,11 @@ export class TransactionConstruct {
 		});
 	}
 
-	safetyWorker({ unsigned, registry, metadataRpc }: UnsignedCall): boolean {
+	safetyWorker({
+		unsigned,
+		registry,
+		metadataRpc,
+	}: UnsignedMaterial): boolean {
 		const decodedC0 = txwrapper.decode(unsigned, {
 			registry,
 			metadataRpc,

@@ -1,8 +1,5 @@
-import * as txwrapper from '@substrate/txwrapper';
-
-import { SidecarApi } from '../sidecar/SidecarApi';
-import { UnsignedCall } from '../transaction/TransactionConstruct';
-import { sleep } from '../util/sleep';
+import { SidecarApi } from './sidecar/SidecarApi';
+import { sleep } from './util/sleep';
 
 export class ChainSync {
 	private sidecarApi: SidecarApi;

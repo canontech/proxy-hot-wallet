@@ -4,11 +4,11 @@ import {
 	encodeMultiAddress,
 } from '@polkadot/util-crypto';
 
-import { sortAddresses } from './address/sortAddreses';
-import { ChainSync } from './chain/ChainSync';
+import { ChainSync } from './ChainSync';
 import { createDemoKeyPairs } from './keyring';
 import { SidecarApi } from './sidecar/SidecarApi';
 import { TransactionConstruct } from './transaction/TransactionConstruct';
+import { sortAddresses } from './util/sortAddreses';
 
 async function main() {
 	const sidecarUrl = 'http://127.0.0.1:8080';
@@ -376,8 +376,10 @@ async function main() {
 					'Transfer'
 				);
 			} catch {
-				console.log('Attacker tranasction failed!');
-				process.exit(1);
+				console.log(
+					'Attacker tranasction failed! The system worked succesfully!'
+				);
+				process.exit();
 			}
 			console.log(
 				'balances succesfully transfered to Attacker through proxy at',

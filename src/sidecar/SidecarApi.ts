@@ -13,7 +13,6 @@ export class SidecarApi {
 	private api: AxiosInstance;
 	readonly SECOND = 1_000;
 	constructor(sidecarBaseUrl: string) {
-		// this.api = axios.create({ baseURL: sidecarBaseUrl });
 		this.api = axios.create({ baseURL: sidecarBaseUrl });
 	}
 
