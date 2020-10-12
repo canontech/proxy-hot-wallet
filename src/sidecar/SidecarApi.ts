@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 
-import { sleep } from '../util/sleep';
+import { sleep } from '../util';
 import { AccountBalanceInfo } from './types/AccountBalanceInfo';
 import { Block } from './types/Block';
 import { TransactionMaterial } from './types/TransactionMaterial';

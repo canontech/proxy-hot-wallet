@@ -2,7 +2,7 @@ import { Keyring } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 
-export type Keys = {
+export interface Keys {
 	alice: KeyringPair;
 	aliceStash: KeyringPair;
 	bob: KeyringPair;
@@ -11,7 +11,7 @@ export type Keys = {
 	charlie: KeyringPair;
 	ferdie: KeyringPair;
 	attacker: KeyringPair;
-};
+}
 
 export async function createDemoKeyPairs(): Promise<Keys> {
 	// References

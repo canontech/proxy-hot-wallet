@@ -1,5 +1,5 @@
 import { SidecarApi } from './sidecar/SidecarApi';
-import { sleep } from './util/sleep';
+import { sleep } from './util';
 
 export class ChainSync {
 	private sidecarApi: SidecarApi;
