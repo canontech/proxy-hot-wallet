@@ -3,14 +3,10 @@ Demo for a safe and effective custodial hot wallet using features unique to Subs
 
 Architecture by @joepetrowski. Implementation by @emostov.
 
-## TODO
+## Disclaimer
+This repo is only for demonstration purposes. None of the code should be used as is for production purposes.
 
--[] Chain sync with methods that allow to specify the event to watch for
--[] Create multisig transactions
--[] Continue main script
--[] Look into auto starting sidecar on script start
-
-## Pre-implementation plan
+## Demo Outline
 ```
 Generate 6 keyrings and make sure accounts have funds (can just use dev chain keys)
 	- 3 for multisig
@@ -28,7 +24,7 @@ Set the 4th key as a proxy for the multisig
 	- multisig.approve_as_multi(hash(Call))
 	- multisig.as_multi(Call)
 
-Create derivative accounts (at least 2) and log addresses to console
+Create derivative accounts from multisig address for depositers to send tokens to
 
 Transfer funds `v` from depositor to two derivative accounts
 	- balances.transfer()
@@ -45,8 +41,15 @@ Demonstrate the "all good" path
 Demonstrate attack path
 	- key4 broadcasts proxy.announce(hash(C1)) and sends C1 to another worker
 	- other worker decodes C1 and sees that destination address is not `stash`
-	- multisig.as_multi(reject_announcement(hash(C1)))
-	- multisig.as_multi(reject_announcement(hash(C1)))
-
-Remove proxy relationship with proxy.remove_proxies()
+	# RUN
+	- multisig.approve_as_multi(reject_announcement(proxy.remove_proxies()))
+	- multisig.as_multi(reject_announcement(proxy.remove_proxies()))
+	# OR
+	- multisig.as_multi(proxy.reject_announcement(hash(C1)))
+	- multisig.as_multi(proxy.reject_announcement(hash(C1)))
 ```
+
+## TODO
+- [ ] Clean up main variable names and console log statements
+- [ ] Make transaction methods take in an options object for tip, origin, material fetch height, etc
+- [ ] Reorg file structure
