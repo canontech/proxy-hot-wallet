@@ -1,14 +1,14 @@
-# Proxy hot wallet demo for Polkadot & Kusama
+# Proxy hot wallet demo for Substrate (Polkadot & Kusama)
 
-Demo for a safe and effective custodial hot wallet architecture using features innovated by [Substrate](https://substrate.dev/) FRAME pallets and featured in production chains such [Polkadot](https://polkadot.network/) and [Kusama](https://kusama.network/)
+Demo for a safe and effective custodial hot wallet architecture using features innovated by [Substrate](https://substrate.dev/) FRAME pallets and featured in production chains such [Polkadot](https://polkadot.network/) and [Kusama](https://kusama.network/).
 
 Architecture by [@joepetrowski](https://github.com/joepetrowski). Implementation by [@emostov](https://github.com/emostov).
 
 ## Disclaimer
 
-This repo is only for demonstration purposes. None of the code should be used as is for production purposes.
+This repo is only for demonstration purposes only.
 
-### Table of contents
+## Table of contents
 
 - [Background](#background)
 - [Technologies](#technologies)
@@ -20,15 +20,15 @@ This repo is only for demonstration purposes. None of the code should be used as
 
 When managing significant sums of funds on behalf of other entities, a major challenge is moving around funds without comprising the private key of the deposit addresses. In traditional block chains the private key must be "hot" (on a device exposed to the internet) in order to efficiently and programmatically move funds from the account (i.e. accounts that a user might deposit funds to). The moment this "hot" key is comprised the attacker has total control of funds.
 
-In this repo we demonstrate an architecture pattern enabled by the [Substrate FRAME](https://substrate.dev/docs/en/knowledgebase/runtime/frame) pallets [`proxy`](https://github.com/paritytech/substrate/tree/master/frame/proxy), [`multisig`](https://github.com/paritytech/substrate/tree/master/frame/multisig) and pseudonymal dispatch from the [`utility`](https://github.com/paritytech/substrate/tree/master/frame/utility#for-pseudonymal-dispatch) pallet, the greatly reduces the risk associated with operating a hot wallet as a custodian.
+In this repo we demonstrate an architecture pattern enabled by the [Substrate FRAME](https://substrate.dev/docs/en/knowledgebase/runtime/frame) [`proxy`](https://github.com/paritytech/substrate/tree/master/frame/proxy), [`multisig`](https://github.com/paritytech/substrate/tree/master/frame/multisig) and [`utility`](https://github.com/paritytech/substrate/tree/master/frame/utility#for-pseudonymal-dispatch) (see pseudonymal dispatch) pallets, that greatly reduces the risk associated with operating a hot wallet as a custodian.
 
-The "hot" account is a multisig composite address adds a proxy that announces transactions, which can be executed after some delay. Pseudonymal accounts are derived from the multisig address and can be generated for every new deposit by a user to keep accounting clear. The proxy account can regularly transfer funds from the derivative accounts to a cold storage location(s). If the system detects a announcement by the proxy for a transfer to a non-certified address, then the multisig accounts can broadcast transactions to revoke the proxies privileges within the announcement period and prevent any of the proxies announced transactions from being executed.
+The "hot" account is a multisig composite address that adds a proxy which announces transactions that can be executed after some delay. Pseudonymal accounts are derived from the multisig address and can be generated for every new deposit by a user to keep accounting clear. The proxy account can regularly transfer funds from the derivative accounts to a cold storage location(s). If the system detects a announcement by the proxy for a transfer to a non-certified address, then the multisig accounts can broadcast transactions to revoke the proxies privileges within the announcement period and prevent any of the proxies announced transactions from being executed.
 
 ## Technologies
 
 - [Parity Polkadot node implementation](https://github.com/paritytech/polkadot#polkadot)
 - [@substrate/txwrapper: offline transaction construction lib for Substrate](https://github.com/paritytech/txwrapper)
-- [@substrate/api-sidecar: RESTful api for Substrate nodes](https://github.com/paritytech/substrate-api-sidecar)
+- [@substrate/api-sidecar: RESTful api microservice for Substrate nodes](https://github.com/paritytech/substrate-api-sidecar)
 - [@polkadot/util-crypto: Substrate cryptography utility lib](https://github.com/polkadot-js/common/tree/master/packages/util-crypto)
 
 ## Architecture
