@@ -13,7 +13,7 @@
     "main": "node ./build/main.js",
     "start": "yarn run build && yarn run main",
     "demo": "yarn run main",
-    "sidecar": "./node_modules/.bin/substrate-api-sidecar"
+    "sidecar": "SAS_LOG_LEVEL=http ./node_modules/.bin/substrate-api-sidecar"
   },
   "dependencies": {
     "@polkadot/util-crypto": "^3.5.1",
