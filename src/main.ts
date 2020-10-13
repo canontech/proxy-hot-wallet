@@ -174,7 +174,10 @@ async function adversarialPath(
 		'Announced'
 	);
 	if (!inclusionPoint5) throw 'blockInclusionAnnounceC1 is null';
-	console.log('proxy.announce of c1 sucessful at ', inclusionPoint5);
+	console.log(
+		`proxy.announce(origin: Alice, callHash: h(${c1Display}) succesfully included at`,
+		inclusionPoint5
+	);
 	logSeperator();
 
 	console.log(
@@ -185,8 +188,8 @@ async function adversarialPath(
 			'...but hopefully we can stop the Attacker before then!'
 	);
 	console.log(
-		'there is a process in the background that will fire proxyAnnounced to execute the actual balance ' +
-			'transfer to the attacker if we do not act fast enough; the demo will keep moving forward'
+		'There is a process in the background that will fire proxyAnnounced to execute the actual balance ' +
+			'transfer to the attacker if we do not act fast enough; the demo will keep moving forward.'
 	);
 	void chainSync
 		.waitUntilHeight(inclusionPoint5?.height + delayPeriod)
