@@ -168,6 +168,7 @@ async function adversarialPath(
 	submiting();
 	const result8 = await sidecarApi.submitTransaction(signedProxyAnnounceC1);
 	console.log(`Node response: `, result8.hash);
+	waiting();
 	const inclusionPoint5 = await chainSync.pollingEventListener(
 		'proxy',
 		'Announced'
@@ -209,6 +210,7 @@ async function adversarialPath(
 				signedProxyAnnoucedTxC1
 			);
 			console.log(`Node response: `, result7.hash);
+			waiting();
 			let inclusionPoint6;
 			try {
 				inclusionPoint6 = await chainSync.pollingEventListener(
@@ -270,6 +272,7 @@ async function adversarialPath(
 		signedRemoveProxiesApproveAsMulti
 	);
 	console.log(`Node response: `, nodeRes4.hash);
+	waiting();
 	const inclusionPoint7 = await chainSync.pollingEventListener(
 		'multisig',
 		'NewMultisig'
@@ -301,6 +304,7 @@ async function adversarialPath(
 		signedremoveProxiesAsMulti
 	);
 	console.log(`Node response: `, nodeRes5.hash);
+	waiting();
 	const inclusionPoint8 = await chainSync.pollingEventListener(
 		'proxy',
 		'ProxyExecuted'
@@ -323,7 +327,7 @@ async function happyPath(
 	delayPeriod: number
 ): Promise<void> {
 	console.log(
-		'Now demonstrating the happy path of using the proxy to transfer funds from multisig derivative account to cold storage.\n'
+		'Now demonstrating the happy path of using the proxy to transfer funds from a multisig derivative account to cold storage.\n'
 	);
 
 	const c0Display =
@@ -357,6 +361,7 @@ async function happyPath(
 	submiting();
 	const nodeRes3 = await sidecarApi.submitTransaction(signedProxyAnnounceC0);
 	console.log(`Node response: `, nodeRes3.hash);
+	waiting();
 	const inclusionPoint3 = await chainSync.pollingEventListener(
 		'proxy',
 		'Announced'
@@ -399,12 +404,13 @@ async function happyPath(
 				signedProxyAnnouced
 			);
 			console.log(`Node response: `, result7.hash);
+			waiting();
 			const inclusionPoint4 = await chainSync.pollingEventListener(
 				'balances',
 				'Transfer'
 			);
 			console.log(
-				'proxy.proxyAnnounced(origin: Eve, call: ${c0Display})) succesfully included at',
+				`proxy.proxyAnnounced(origin: Eve, call: ${c0Display})) succesfully included at`,
 				inclusionPoint4
 			);
 			logSeperator();
@@ -412,7 +418,7 @@ async function happyPath(
 
 	console.log(
 		`\nSimultanously sending ${c0Display} to the safety worker for decoding` +
-			' and verification that the transfer is going to cold storage'
+			' and verification that the transfer is going to cold storage.'
 	);
 	transactionConstruct.safetyWorker({
 		unsigned: transferToColdStorage,
@@ -464,6 +470,7 @@ async function setupProxyForMultisig(
 	submiting();
 	const nodeRes2 = await sidecarApi.submitTransaction(signedApproveAsMulti);
 	console.log(`Node response: `, nodeRes2.hash);
+	waiting();
 	const inclusionPoint2 = await chainSync.pollingEventListener(
 		'multisig',
 		'NewMultisig'
@@ -492,6 +499,7 @@ async function setupProxyForMultisig(
 	submiting();
 	const result3 = await sidecarApi.submitTransaction(signedAsMulti);
 	console.log(`Node response: `, result3.hash);
+	waiting();
 	const inlusionPoint3 = await chainSync.pollingEventListener(
 		'multisig',
 		'MultisigExecuted'
@@ -525,6 +533,7 @@ async function depositerTransferToDeriv(
 	submiting();
 	const nodeRes1 = await sidecarApi.submitTransaction(signedTransferToD0);
 	console.log(`Node response: `, nodeRes1.hash);
+	waiting();
 	const inclusionPoint1 = await chainSync.pollingEventListener(
 		'balances',
 		'Transfer'
@@ -551,6 +560,7 @@ async function depositerTransferToDeriv(
 	submiting();
 	const nodeRes2 = await sidecarApi.submitTransaction(signedTransferToD1);
 	console.log(`Node response: `, nodeRes2.hash);
+	waiting();
 	const inclusionPoint2 = await chainSync.pollingEventListener(
 		'balances',
 		'Transfer'

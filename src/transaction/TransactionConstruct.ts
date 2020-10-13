@@ -207,8 +207,6 @@ export class TransactionConstruct {
 		return { unsigned, metadataRpc: baseInfo.metadataRpc, registry };
 	}
 
-	// TODO proxyType can be of type string literal "Any" | "Democracy" etc..
-	// NOTE: this does not sign transacstion
 	async proxyAddProxy(
 		{ origin, tip, height, metadataRpc }: TransactionOpts,
 		delegate: string,

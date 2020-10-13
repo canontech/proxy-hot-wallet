@@ -1,0 +1,119 @@
+yarn run v1.22.5
+$ yarn run build && yarn run main
+$ tsc
+$ node ./build/main.js
+Multisig address generation info
+Addresses: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY 5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty 5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy
+Threshold: 2
+Multisig Address (SS58: 42): 5CGrv4qEk299n1UCcDiJSFQsa3yqgnQct8m4rpHq9eMrHrfd
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+balances.transfer(origin: Alice, dest: multisig address)
+...submiting transaction to the node 🚀
+Node response:  0x3bd7249258dbbb6745743a3703c0f1ff9283cfe7aca118076f19b61745adcfdf
+...waiting for transaction inclusion ⌛️⌛⌛️
+Balances.transfer(origin: Alice, dest: multisig address) succesfully included at  { height: 8, index: 2 }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+multisig.approveAsMulti(origin: Bob , callHash: h(proxy.addProxy(origin: multisig address, proxy: eve)))
+...submiting transaction to the node 🚀
+Node response:  0x54034163ea524504ff0db9752ac44dbd18c45d99b5b4656c3711a2136857fbd2
+...waiting for transaction inclusion ⌛️⌛⌛️
+multisig.approveAsMulti(origin: Bob , callHash: h(proxy.addProxy(origin: multisig address, proxy: eve))) succesfully included at  { height: 13, index: 2 }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+multisig.asMulti(origin: Dave, call: proxy.addProxy(origin: multisig address, proxy: eve))
+...submiting transaction to the node 🚀
+Node response:  0xca8a5d8b8a936ec78f54cb8396a778279c1d0b311d1c2582e80d18c20dd99b20
+...waiting for transaction inclusion ⌛️⌛⌛️
+multisig.asMulti(origin: Dave, call: ${addProxyEveDisplay}) succsefully included at  { height: 17, index: 2 }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+Created two derived addresses from the multisig address
+Multisig derive 0:  5Gis6jjHxRjr52UqcyE8AS1UXSWdisNH9ykvLnP76d7RzEoJ
+Multisig derive 1:  5DYJ9G7PsDAtNE6EzjnqhKfoezaLVF6JK1k1A441mAN2eTj8
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+balances.transfer(origin: Charlie, dest: derive address 0)
+...submiting transaction to the node 🚀
+Node response:  0x48ddc25cfd39fe4822ae2e87aa21a13d00f94c6c7f4c21d52211ebad4e5a288a
+...waiting for transaction inclusion ⌛️⌛⌛️
+balances.transfer(origin: Charlie, dest: derive address 0) sucessfully included at  { height: 22, index: 2 }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+balances.transfer(origin: Charlie, dest: derive address 1)
+...submiting transaction to the node 🚀
+Node response:  0xdadf2207e0bb1e6d9957e606be114e3fe0ebff37f1f88ec6d7cda86b7124c83d
+...waiting for transaction inclusion ⌛️⌛⌛️
+balances.transfer(origin: Charlie, dest: derive address 1) succesfully included at  { height: 22, index: 2 }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+Now demonstrating the happy path of using the proxy to transfer funds from a multisig derivative account to cold storage.
+
+proxy.announce(origin: eve, callHash: h(utility.asDerivative(origin: multisig addres, index: 0, call: balances.transfer(origin: derive address 0, dest: cold storage)))
+...submiting transaction to the node 🚀
+Node response:  0x58d2383a2b542d891bff8a3a0fb0b5e520769dc0583a9e176daaceb3431cd6d6
+...waiting for transaction inclusion ⌛️⌛⌛️
+proxy.announce(origin: eve, callHash: h(utility.asDerivative(origin: multisig addres, index: 0, call: balances.transfer(origin: derive address 0, dest: cold storage))) sucessfully included at  { height: 28, index: 2 }
+
+Now that the transaction was succesfuly submitted, we will wait 10 blocks after the announcement (until block 38) for the delay periood to pass and execute with proxyAnnounced.
+There is a process in the background that will fire proxyAnnounced to execute the actual balance transfer to cold storage once the delay period is over; the demo will keep moving forward
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+
+Simultanously sending utility.asDerivative(origin: multisig addres, index: 0, call: balances.transfer(origin: derive address 0, dest: cold storage)) to the safety worker for decoding and verification that the transfer is going to cold storage.
+Decoded attempt to transfer from derivative account:
+ { dest: '5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY', value: 1 }
+Destination is correct cold storage:  true
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+Now demonstrating the adversarial path.
+
+proxy.announce(origin: Alice, callHash: h(utility.asDerivative(origin: multisig address, index: 1, call: balances.transfer(origin: derivate address 1, dest: Attacker))
+...submiting transaction to the node 🚀
+Node response:  0xe91d6af9f08bba8927a39bcacd034e9ea55e51f8a116e342f1f48023d63300c6
+...waiting for transaction inclusion ⌛️⌛⌛️
+proxy.announce of c1 sucessful at  { height: 33, index: 2 }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+Now that the transacstion was succesfuly submitted, wait 10 blocks after announcement (until block43) for the delay periood to pass and execute with proxyAnnounced.
+...but hopefully we can stop the Attacker before then!
+there is a process in the background that will fire proxyAnnounced to execute the actual balance transfer to the attacker if we do not act fast enough; the demo will keep moving forward
+
+Simultanously sending utility.asDerivative(origin: multisig address, index: 1, call: balances.transfer(origin: derivate address 1, dest: Attacker) to the safety worker for decoding and verification of the transfer - the system will catch the attacker here and kickoff the security procedure to stop the malicious transfer
+Decoded attempt to transfer from derivative account:
+ {
+  dest: '5FcMRihF5cwGEqLS2PWLGbebXCATwrUEzY1SJja7s4KtBYR6',
+  value: 1234666
+}
+Destination is correct cold storage:  false
+
+🚧 Malicious proxy transfer detected, kicking off proxy removal protocol! 🚧
+
+multisig.approveAsMulti(origin: Alice, callHash: h(proxy.removeProxies(origin: multisig address)))
+...submiting transaction to the node 🚀
+Node response:  0x6fe489f8286e278b48761a2b49071af8031426db258f8075dda006c2717e229f
+...waiting for transaction inclusion ⌛️⌛⌛️
+multisig.approveAsMulti(origin: Alice, callHash: h(proxy.removeProxies(origin: multisig address))) succesfuly included at { height: 38, index: 2 }
+
+(💤 background task) proxy.proxyAnnounced(origin: Eve, call: utility.asDerivative(origin: multisig addres, index: 0, call: balances.transfer(origin: derive address 0, dest: cold storage))))
+...submiting transaction to the node 🚀
+
+multisig.asMulti(origin: Bob, call: proxy.removeProxies(origin: multisig address))
+...submiting transaction to the node 🚀
+Node response:  0x3174e14984fa42802f0a38b9347137edcc51740ab4690f0ff488922fbb0d3751
+...waiting for transaction inclusion ⌛️⌛⌛️
+Node response:  0x8cb6e2dcd01076580b5d229025074addc3df5e8d29d20547c8f965d64581b73c
+...waiting for transaction inclusion ⌛️⌛⌛️
+proxy.proxyAnnounced(origin: Eve, call: utility.asDerivative(origin: multisig addres, index: 0, call: balances.transfer(origin: derive address 0, dest: cold storage)))) succesfully included at { height: 43, index: 2 }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+multisig.asMulti(origin: Bob, call: proxy.removeProxies(origin: multisig address)) succsefully included at  { height: 43, index: 2 }
+Crisis averted 👩‍🚒 attacker transfer cancelled 👌!
+
+(💤background task) proxy.proxyAnnounced(utility.asDerivative(origin: multisig address, index: 1, call: balances.transfer(origin: derivate address 1, dest: Attacker))
+...submiting transaction to the node 🚀
+Node response:  0xe811903a17c073070fdccf9d389ba42dad78c2f4d28125acf070ed6edf2e2818
+...waiting for transaction inclusion ⌛️⌛⌛️
+Attacker tranasction failed! The system worked succesfully!
+Done in 272.19s.

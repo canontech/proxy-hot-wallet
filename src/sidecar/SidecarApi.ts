@@ -76,7 +76,6 @@ export class SidecarApi {
 		return response.data as AccountBalanceInfo;
 	}
 
-	// TODO clean this up so it does not use no meta option
 	async getTransactionMaterial({
 		height,
 		noMeta,
@@ -85,7 +84,7 @@ export class SidecarApi {
 		noMeta?: boolean;
 	}): Promise<TransactionMaterial> {
 		let uri = `transaction/material`;
-		if (typeof typeof height === 'number' || noMeta) {
+		if (typeof height === 'number' || noMeta) {
 			uri += '?';
 		}
 

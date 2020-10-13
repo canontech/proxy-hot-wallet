@@ -2,7 +2,7 @@
 
 Demo for a safe and effective custodial hot wallet architecture using features innovated by [Substrate](https://substrate.dev/) FRAME pallets and featured in production chains such [Polkadot](https://polkadot.network/) and [Kusama](https://kusama.network/).
 
-Architecture by [@joepetrowski](https://github.com/joepetrowski). Implementation by [@emostov](https://github.com/emostov).
+By [@joepetrowski](https://github.com/joepetrowski) & [@emostov](https://github.com/emostov)
 
 ## Disclaimer
 
@@ -10,6 +10,7 @@ This repo is only for demonstration purposes only.
 
 ## Table of contents
 
+- [Authors](#authors)
 - [Background](#background)
 - [Technologies](#technologies)
 - [Architecture](#architecture)
@@ -20,7 +21,7 @@ This repo is only for demonstration purposes only.
 
 When managing significant sums of funds on behalf of other entities, a major challenge is moving around funds without comprising the private key of the deposit addresses. In traditional block chains the private key must be "hot" (on a device exposed to the internet) in order to efficiently and programmatically move funds from the account (i.e. accounts that a user might deposit funds to). The moment this "hot" key is comprised the attacker has total control of funds.
 
-In this repo we demonstrate an architecture pattern enabled by the [Substrate FRAME](https://substrate.dev/docs/en/knowledgebase/runtime/frame) [`proxy`](https://github.com/paritytech/substrate/tree/master/frame/proxy), [`multisig`](https://github.com/paritytech/substrate/tree/master/frame/multisig) and [`utility`](https://github.com/paritytech/substrate/tree/master/frame/utility#for-pseudonymal-dispatch) (see pseudonymal dispatch) pallets, that greatly reduces the risk associated with operating a hot wallet as a custodian.
+In this repo we demonstrate an architecture pattern enabled by the [Substrate FRAME](https://substrate.dev/docs/en/knowledgebase/runtime/frame) [`proxy`](https://github.com/paritytech/substrate/tree/master/frame/proxy), [`multisig`](https://github.com/paritytech/substrate/tree/master/frame/multisig) and [`utility`](https://github.com/paritytech/substrate/tree/master/frame/utility#for-pseudonymal-dispatch) (see pseudonymal dispatch) pallets, that minimizes attack vectors associated with operating a hot wallet as a custodian.
 
 The "hot" account is a multisig composite address that adds a proxy which announces transactions that can be executed after some delay. Pseudonymal accounts are derived from the multisig address and can be generated for every new deposit by a user to keep accounting clear. The proxy account can regularly transfer funds from the derivative accounts to a cold storage location(s). If the system detects a announcement by the proxy for a transfer to a non-certified address, then the multisig accounts can broadcast transactions to revoke the proxies privileges within the announcement period and prevent any of the proxies announced transactions from being executed.
 
@@ -162,10 +163,13 @@ The "hot" account is a multisig composite address that adds a proxy which announ
 
 ## Run
 
-1) This demo relies on using a parity polkadot development node; you can download the [source here](https://github.com/paritytech/polkadot). Follow the instruction to download compile the code.
-2) Start the node by running `./target/release/polkadot --dev`.
-3) In another terminal change directories to this project and install dependencies by running `yarn`.
-4) Start up Sidecar  by running `yarn sidecar`.
-5) In another terminal, mnake sure you are in this project directory and start the demo by running `yarn start`
+1) This demo relies on using a parity polkadot development node; you can download the [source here](https://github.com/paritytech/polkadot). Follow the instructions to download and compile the code.
+2) Make sure the nodes database is clear by running: `./target/release/polkadot purge-chain --dev` (**N.B.** the nodes DB must be purged before every run of the demo script)
+3) Start the node by running `./target/release/polkadot --dev`
+4) In another terminal session change directories to this project and install dependencies by running `yarn`
+5) Start up Sidecar by running `yarn sidecar`
+6) In another terminal session, make sure you are in this project directory and start the demo by running `yarn start`
 
 Note: this script assumes the polkadot node and Sidecar are using the defualt development ports.
+
+[Sample demo output](/out.log)
