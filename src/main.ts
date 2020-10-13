@@ -35,7 +35,7 @@ async function main() {
 	// Load up multisig account with currency so it can make transactions
 	const trasnferValue = '0123456789012345';
 	const transferToMultiSigCall = await transactionConstruct.balancesTransfer(
-		keys.alice.address,
+		{ origin: keys.alice.address },
 		multisigAddr,
 		trasnferValue
 	);
@@ -143,19 +143,19 @@ async function adversarialPath(
 		registry: transferToAttackerRegistry,
 		metadataRpc: transferToAttackerMetadataRpc,
 	} = await transactionConstruct.balancesTransfer(
-		deriveAddr1,
+		{ origin: deriveAddr1 },
 		keys.attacker.address,
 		'01234666'
 	);
 	const { unsigned: c1 } = await transactionConstruct.utilityAsDerivative(
-		multisigAddr,
+		{ origin: multisigAddr },
 		1,
 		transferToAttacker.method
 	);
 	const c1Method = c1.method;
 	const c1Hash = blake2AsHex(c1Method, 256);
 	const proxyAnnounceC1 = await transactionConstruct.proxyAnnounce(
-		keys.eve.address,
+		{ origin: keys.eve.address },
 		multisigAddr,
 		c1Hash
 	);
@@ -177,7 +177,7 @@ async function adversarialPath(
 	logSeperator();
 
 	console.log(
-		`Now that the transacstion was succesfuly submitted, wait ${delayPeriod} blocks after announcement (${
+		`Now that the transacstion was succesfuly submitted, wait ${delayPeriod} blocks after announcement (until block${
 			inclusionPoint5?.height + delayPeriod
 		}) ` +
 			'for the delay periood to pass and execute with proxyAnnounced.\n' +
@@ -191,7 +191,7 @@ async function adversarialPath(
 		.waitUntilHeight(inclusionPoint5?.height + delayPeriod)
 		.then(async () => {
 			const proxyAnnouncedCallC1 = await transactionConstruct.proxyProxyAnnounced(
-				keys.eve.address,
+				{ origin: keys.eve.address },
 				multisigAddr,
 				keys.eve.address,
 				'Any',
@@ -247,10 +247,10 @@ async function adversarialPath(
 		'proxy.removeProxies(origin: multisig address)';
 	const {
 		unsigned: { method: removeProxiesMethod },
-	} = await transactionConstruct.proxyRemoveProxies(multisigAddr);
+	} = await transactionConstruct.proxyRemoveProxies({ origin: multisigAddr });
 	const removeProxiesHash = blake2AsHex(removeProxiesMethod);
 	const removeProxiesApproveAsMulti = await transactionConstruct.multiSigApproveAsMulti(
-		keys.alice.address,
+		{ origin: keys.alice.address },
 		2,
 		sortAddresses([keys.bob.address, keys.dave.address]),
 		null,
@@ -276,13 +276,12 @@ async function adversarialPath(
 	);
 	if (!inclusionPoint7) throw 'timepoint1 null';
 	console.log(
-		`multisig.approveAsMulti(origin: Alice, callHash: h(${removeProxiesDisplay}))`,
+		`multisig.approveAsMulti(origin: Alice, callHash: h(${removeProxiesDisplay})) succesfuly included at`,
 		inclusionPoint7
 	);
-	logSeperator();
 
 	const removeProxiesAsMulti = await transactionConstruct.multiSigAsMulti(
-		keys.bob.address,
+		{ origin: keys.bob.address },
 		2,
 		sortAddresses([keys.alice.address, keys.dave.address]),
 		inclusionPoint7,
@@ -294,7 +293,9 @@ async function adversarialPath(
 		keys.bob,
 		removeProxiesAsMulti
 	);
-	console.log(`multisig.asMulti(origin: Bob, call: ${removeProxiesDisplay})`);
+	console.log(
+		`\nmultisig.asMulti(origin: Bob, call: ${removeProxiesDisplay})`
+	);
 	submiting();
 	const nodeRes5 = await sidecarApi.submitTransaction(
 		signedremoveProxiesAsMulti
@@ -304,7 +305,7 @@ async function adversarialPath(
 		'proxy',
 		'ProxyExecuted'
 	);
-	if (!inclusionPoint8) throw 'proxyRemovedAt is null';
+	if (!inclusionPoint8) throw 'inclusionPoint8 is null';
 	console.log(
 		`multisig.asMulti(origin: Bob, call: ${removeProxiesDisplay}) succsefully included at `,
 		inclusionPoint8
@@ -332,19 +333,19 @@ async function happyPath(
 		registry: transferToColdStorageRegistry,
 		metadataRpc: transferToColdStorageMetadataRpc,
 	} = await transactionConstruct.balancesTransfer(
-		deriveAddr0,
+		{ origin: deriveAddr0 },
 		keys.aliceStash.address,
 		'1'
 	);
 	const { unsigned: c0 } = await transactionConstruct.utilityAsDerivative(
-		multisigAddr,
+		{ origin: multisigAddr },
 		0,
 		transferToColdStorage.method
 	);
 	const c0Method = c0.method;
 	const c0Hash = blake2AsHex(c0Method, 256);
 	const proxyAnnounceC0 = await transactionConstruct.proxyAnnounce(
-		keys.eve.address,
+		{ origin: keys.eve.address },
 		multisigAddr,
 		c0Hash
 	);
@@ -366,7 +367,7 @@ async function happyPath(
 		inclusionPoint3
 	);
 	console.log(
-		`\nNow that the transaction was succesfuly submitted, we will wait ${delayPeriod} blocks after announcement (until ${
+		`\nNow that the transaction was succesfuly submitted, we will wait ${delayPeriod} blocks after the announcement (until block ${
 			inclusionPoint3?.height + delayPeriod
 		}) ` +
 			'for the delay periood to pass and execute with proxyAnnounced.' +
@@ -376,11 +377,11 @@ async function happyPath(
 	logSeperator();
 
 	// wait until the delay period has passed and then execute the announce call
-	await chainSync
+	void chainSync
 		.waitUntilHeight(inclusionPoint3?.height + delayPeriod)
 		.then(async () => {
 			const proxyAnnounced = await transactionConstruct.proxyProxyAnnounced(
-				keys.eve.address,
+				{ origin: keys.eve.address },
 				multisigAddr,
 				keys.eve.address,
 				'Any',
@@ -432,11 +433,10 @@ async function setupProxyForMultisig(
 	maxWeight: number
 ): Promise<void> {
 	// construct tx to add Eve as a proxy to multisig address
-
 	const {
 		unsigned: { method: addProxyEveMethod },
 	} = await transactionConstruct.proxyAddProxy(
-		multisigAddr,
+		{ origin: multisigAddr },
 		keys.eve.address,
 		'Any',
 		delayPeriod
@@ -447,7 +447,7 @@ async function setupProxyForMultisig(
 
 	// construct tx for Bob to approve adding Eve as a proxy to the multi sig address
 	const approveAsMulti = await transactionConstruct.multiSigApproveAsMulti(
-		keys.bob.address,
+		{ origin: keys.bob.address },
 		2,
 		sortAddresses([keys.alice.address, keys.dave.address], ss58Prefix),
 		null,
@@ -476,7 +476,7 @@ async function setupProxyForMultisig(
 
 	// construct transaction for Dave to approve and execute adding Eve as a proxy to the multisig address
 	const asMulti = await transactionConstruct.multiSigAsMulti(
-		keys.dave.address,
+		{ origin: keys.dave.address },
 		2,
 		sortAddresses([keys.alice.address, keys.bob.address], ss58Prefix),
 		inclusionPoint2,
@@ -489,7 +489,7 @@ async function setupProxyForMultisig(
 		asMulti
 	);
 	console.log(`multisig.asMulti(origin: Dave, call: ${addProxyEveDisplay})`);
-	console.log('...submiting 🚀\n');
+	submiting();
 	const result3 = await sidecarApi.submitTransaction(signedAsMulti);
 	console.log(`Node response: `, result3.hash);
 	const inlusionPoint3 = await chainSync.pollingEventListener(
@@ -511,8 +511,9 @@ async function depositerTransferToDeriv(
 	deriveAddr0: string,
 	deriveAddr1: string
 ): Promise<void> {
+	// construct tx to transfer funds from charlie (depositer) to mulisig derive address 0
 	const transferToD0 = await transactionConstruct.balancesTransfer(
-		keys.charlie.address,
+		{ origin: keys.charlie.address },
 		deriveAddr0,
 		'1234567890123450'
 	);
@@ -535,11 +536,11 @@ async function depositerTransferToDeriv(
 	);
 	logSeperator();
 
+	// construct tx to transfer funds from charlie (depositer) to mulisig derive address 1
 	const transferToD1 = await transactionConstruct.balancesTransfer(
-		keys.charlie.address,
+		{ origin: keys.charlie.address, height: inclusionPoint1.height + 1 },
 		deriveAddr1,
-		'1234567890123450',
-		inclusionPoint1.height + 1
+		'1234567890123450'
 	);
 	const signedTransferToD1 = transactionConstruct.createAndSignTransaction(
 		keys.charlie,
