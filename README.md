@@ -163,7 +163,7 @@ The "hot" account is a multisig composite address that adds a proxy which announ
 ## Run
 
 1) This demo relies on using a parity polkadot development node; you can download the [source here](https://github.com/paritytech/polkadot). Follow the instructions to download and compile the code.
-2) Make sure the nodes database is clear by running: `./target/release/polkadot purge-chain --dev` (**N.B.** the nodes DB must be purged before every run of the demo script)
+2) Make sure the node's database is empty by running: `./target/release/polkadot purge-chain --dev` (**N.B.** the nodes DB must be purged before every run of the demo script)
 3) Start the node by running `./target/release/polkadot --dev`
 4) In another terminal session change directories to this project and install dependencies by running `yarn`
 5) Start up Sidecar by running `yarn sidecar`
