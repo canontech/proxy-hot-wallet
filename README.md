@@ -10,7 +10,6 @@ This repo is only for demonstration purposes only.
 
 ## Table of contents
 
-- [Authors](#authors)
 - [Background](#background)
 - [Technologies](#technologies)
 - [Architecture](#architecture)
