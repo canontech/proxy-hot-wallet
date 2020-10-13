@@ -389,6 +389,13 @@ export class TransactionConstruct {
 		return { unsigned, registry, metadataRpc: baseInfo.metadataRpc };
 	}
 
+	/**
+	 * Create the signing payload, create a signature from the payload, and then
+	 * returned the payload with the signature attached
+	 *
+	 * @param origin
+	 * @param unsignedMaterial
+	 */
 	createAndSignTransaction(
 		origin: KeyringPair,
 		{ unsigned, registry, metadataRpc }: UnsignedMaterial

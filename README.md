@@ -14,6 +14,7 @@ This repo is only for demonstration purposes. None of the code should be used as
 - [Technologies](#technologies)
 - [Architecture](#architecture)
 - [Demo outline](#demo-outline)
+- [Run](#run)
 
 ## Background
 
@@ -158,3 +159,13 @@ The "hot" account is a multisig composite address adds a proxy that announces tr
     - safety worker decodes `C1` and sees that destination address is not `stash`
     - `multisig.approve_as_multi(proxy.remove_proxies(hash(C1)))`
     - `multisig.as_multi(proxy.reject_announcement(hash(C1)))`
+
+## Run
+
+1) This demo relies on using a parity polkadot development node; you can download the [source here](https://github.com/paritytech/polkadot). Follow the instruction to download compile the code.
+2) Start the node by running `./target/release/polkadot --dev`.
+3) In another terminal change directories to this project and install dependencies by running `yarn`.
+4) Start up Sidecar  by running `yarn sidecar`.
+5) In another terminal, mnake sure you are in this project directory and start the demo by running `yarn start`
+
+Note: this script assumes the polkadot node and Sidecar are using the defualt development ports.

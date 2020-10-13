@@ -12,10 +12,12 @@
     "build": "tsc",
     "main": "node ./build/main.js",
     "start": "yarn run build && yarn run main",
-    "demo": "yarn run main"
+    "demo": "yarn run main",
+    "sidecar": "./node_modules/.bin/substrate-api-sidecar"
   },
   "dependencies": {
     "@polkadot/util-crypto": "^3.5.1",
+    "@substrate/api-sidecar": "^1.0.0-rc3",
     "@substrate/txwrapper": "^3.10.0",
     "axios": "^0.20.0"
   },
