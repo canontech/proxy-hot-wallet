@@ -77,12 +77,24 @@ export class SidecarApi {
 	}
 
 	// TODO clean this up so it does not use no meta option
-	async getTransactionMaterial(
-		height?: number
-	): Promise<TransactionMaterial> {
-		let uri = `transaction/material?`;
+	async getTransactionMaterial({
+		height,
+		noMeta,
+	}: {
+		height?: number;
+		noMeta?: boolean;
+	}): Promise<TransactionMaterial> {
+		let uri = `transaction/material`;
+		if (typeof typeof height === 'number' || noMeta) {
+			uri += '?';
+		}
+
 		if (typeof height === 'number') {
-			uri += `?at=${height}`;
+			uri += `at=${height}&`;
+		}
+
+		if (noMeta) {
+			uri += 'noMeta=true';
 		}
 
 		const response = await this.retryGet(uri);
