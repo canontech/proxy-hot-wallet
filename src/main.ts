@@ -8,7 +8,13 @@ import { ChainSync } from './ChainSync';
 import { createDemoKeyPairs, Keys } from './keyring';
 import { SidecarApi } from './sidecar/SidecarApi';
 import { TransactionConstruct } from './transaction/TransactionConstruct';
-import { logSeperator, sortAddresses, submiting, waiting } from './util';
+import {
+	logSeperator,
+	sortAddresses,
+	submiting,
+	waiting,
+	waitToContinue,
+} from './util';
 
 const sidecarUrl = 'http://127.0.0.1:8080';
 
@@ -31,6 +37,7 @@ async function main() {
 	console.log(`Threshold: ${threshold}`);
 	console.log(`Multisig Address (SS58: ${ss58Prefix}): ${multisigAddr}`);
 	logSeperator();
+	await waitToContinue();
 
 	// Load up multisig account with currency so it can make transactions
 	const trasnferValue = '0123456789012345';
@@ -59,6 +66,7 @@ async function main() {
 		inclusionPoint1
 	);
 	logSeperator();
+	await waitToContinue();
 
 	const delayPeriod = 10; // 10 blocks = 1 min
 	const maxWeight = 1000000000;
@@ -82,6 +90,7 @@ async function main() {
 	console.log('Multisig derive 0: ', deriveAddr0);
 	console.log('Multisig derive 1: ', deriveAddr1);
 	logSeperator();
+	await waitToContinue();
 
 	// Depositer transfers money into multisig derive addresses 0 and 1.
 	await depositerTransferToDeriv(
@@ -179,6 +188,7 @@ async function adversarialPath(
 		inclusionPoint5
 	);
 	logSeperator();
+	await waitToContinue();
 
 	console.log(
 		`Now that the transacstion was succesfuly submitted, wait ${delayPeriod} blocks after announcement (until block${
@@ -212,7 +222,7 @@ async function adversarialPath(
 			const result7 = await sidecarApi.submitTransaction(
 				signedProxyAnnoucedTxC1
 			);
-			console.log(`Node response: `, result7.hash);
+			console.log(`\nNode response: `, result7.hash);
 			waiting();
 			let inclusionPoint6;
 			try {
@@ -222,15 +232,15 @@ async function adversarialPath(
 				);
 			} catch {
 				console.log(
-					'Attacker tranasction failed! The system worked succesfully!'
+					'\nAttacker tranasction failed! The system worked succesfully!'
 				);
 				process.exit();
 			}
 			console.log(
-				`proxy.proxyAnnounced(${c1Display}) succesfully included at `,
+				`\nproxy.proxyAnnounced(${c1Display}) succesfully included at `,
 				inclusionPoint6
 			);
-			console.log('Security system failed!');
+			console.log('\nSecurity system failed!');
 			process.exit();
 		});
 
@@ -383,6 +393,7 @@ async function happyPath(
 			'transfer to cold storage once the delay period is over; the demo will keep moving forward'
 	);
 	logSeperator();
+	await waitToContinue();
 
 	// wait until the delay period has passed and then execute the announce call
 	void chainSync
@@ -406,17 +417,18 @@ async function happyPath(
 			const result7 = await sidecarApi.submitTransaction(
 				signedProxyAnnouced
 			);
-			console.log(`Node response: `, result7.hash);
+			console.log(`\n(💤 background task) Node response: `, result7.hash);
 			waiting();
 			const inclusionPoint4 = await chainSync.pollingEventListener(
 				'balances',
 				'Transfer'
 			);
 			console.log(
-				`proxy.proxyAnnounced(origin: Eve, call: ${c0Display})) succesfully included at`,
+				`\n(💤 background task) proxy.proxyAnnounced(origin: Eve, call: ${c0Display})) succesfully included at`,
 				inclusionPoint4
 			);
 			logSeperator();
+			await waitToContinue();
 		});
 
 	console.log(
@@ -429,6 +441,7 @@ async function happyPath(
 		metadataRpc: transferToColdStorageMetadataRpc,
 	});
 	logSeperator();
+	await waitToContinue();
 }
 
 async function setupProxyForMultisig(
@@ -483,6 +496,7 @@ async function setupProxyForMultisig(
 		inclusionPoint2
 	);
 	logSeperator();
+	await waitToContinue();
 
 	// construct transaction for Dave to approve and execute adding Eve as a proxy to the multisig address
 	const asMulti = await transactionConstruct.multiSigAsMulti(
@@ -512,6 +526,7 @@ async function setupProxyForMultisig(
 		inlusionPoint3
 	);
 	logSeperator();
+	await waitToContinue();
 }
 
 async function depositerTransferToDeriv(
@@ -547,6 +562,7 @@ async function depositerTransferToDeriv(
 		inclusionPoint1
 	);
 	logSeperator();
+	await waitToContinue();
 
 	// construct tx to transfer funds from charlie (depositer) to mulisig derive address 1
 	const transferToD1 = await transactionConstruct.balancesTransfer(
@@ -572,5 +588,6 @@ async function depositerTransferToDeriv(
 		'balances.transfer(origin: Charlie, dest: derive address 1) succesfully included at ',
 		inclusionPoint2
 	);
-	logSeperator();
+	logSeperator(); 
+	await waitToContinue();
 }
