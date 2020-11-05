@@ -40,7 +40,7 @@ async function main() {
 	await waitToContinue();
 
 	// Load up multisig account with currency so it can make transactions
-	const trasnferValue = '0123456789012345';
+	const trasnferValue = '999999999999999';
 	const transferToMultiSigCall = await transactionConstruct.balancesTransfer(
 		{ origin: keys.alice.address },
 		multisigAddr,

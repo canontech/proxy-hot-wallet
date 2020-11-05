@@ -64,8 +64,6 @@ export class TransactionConstruct {
 			genesisHash,
 			txVersion,
 			specVersion,
-			chainName,
-			specName,
 			metadata: metadataRpc,
 		} = await this.sidecarApi.getTransactionMaterial({
 			height: heightParam,
