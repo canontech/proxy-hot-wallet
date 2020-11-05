@@ -18,9 +18,14 @@ import {
 	UnsignedMaterial,
 } from './types';
 
-type ChainName = 'Kusama' | 'Polkadot' | 'Polkadot CC1' | 'Westend';
-
-type SpecName = 'kusama' | 'polkadot' | 'westend';
+/**
+ * Can be found using the `/runtime/spec` endpoint on Sidecar
+ */
+const CALIENTE_CHAIN_PROPERTIES = {
+	ss58Format: 42,
+	tokenDecimals: 12,
+	tokenSymbol: null,
+};
 
 export class TransactionConstruct {
 	private sidecarApi: SidecarApi;
@@ -28,6 +33,23 @@ export class TransactionConstruct {
 
 	constructor(sidecarURL: string, readonly coldStorage: string) {
 		this.sidecarApi = new SidecarApi(sidecarURL);
+	}
+
+	private getRegistryCaliente(metadataRpc: string): TypeRegistry {
+		const registry = new TypeRegistry();
+
+		registry.register({
+			Address: 'AccountId',
+			LookupSource: 'AccountId',
+		});
+
+		registry.setChainProperties(
+			registry.createType('ChainProperties', CALIENTE_CHAIN_PROPERTIES)
+		);
+
+		registry.setMetadata(createMetadata(registry, metadataRpc));
+
+		return registry;
 	}
 
 	private async fetchTransactionMaterial({
@@ -55,11 +77,8 @@ export class TransactionConstruct {
 			nonce,
 		} = await this.sidecarApi.getAccountBalance(origin);
 
-		const registry = txwrapper.getRegistry(
-			chainName as ChainName,
-			specName as SpecName,
-			parseInt(specVersion),
-			metadataRpc || metadataRpcParam
+		const registry = this.getRegistryCaliente(
+			metadataRpc || (metadataRpcParam as string)
 		);
 
 		const baseInfo = {
@@ -219,7 +238,7 @@ export class TransactionConstruct {
 			metadataRpc,
 		});
 
-		const unsigned = txwrapper.proxy.addProxy(
+		const unsigned = txwrapper.methods.proxy.addProxy(
 			{ delegate, proxyType, delay },
 			{
 				address: origin,
