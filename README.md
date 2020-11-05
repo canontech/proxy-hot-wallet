@@ -6,7 +6,7 @@ By [@joepetrowski](https://github.com/joepetrowski) & [@emostov](https://github.
 
 ## Disclaimer
 
-This repo is only for demonstration purposes only.
+This repo is for demonstration purposes only.
 
 ## Table of contents
 
