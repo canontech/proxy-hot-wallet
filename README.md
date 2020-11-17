@@ -18,7 +18,7 @@ This repo is for demonstration purposes only.
 
 ## Background
 
-When managing significant sums of funds on behalf of other entities, a major challenge is moving around funds without comprising the private key of the deposit addresses. In traditional block chains the private key must be "hot" (on a device exposed to the internet) in order to efficiently and programmatically move funds from the account (i.e. accounts that a user might deposit funds to). The moment this "hot" key is comprised the attacker has total control of funds.
+When managing significant sums of funds on behalf of other entities, a major challenge is moving around funds without compromising the private key of the deposit addresses. In traditional block chains the private key must be "hot" (on a device exposed to the internet) in order to efficiently and programmatically move funds from the account (i.e. accounts that a user might deposit funds to). The moment this "hot" key is comprised the attacker has total control of funds.
 
 In this repo we demonstrate an architecture pattern enabled by the [Substrate FRAME](https://substrate.dev/docs/en/knowledgebase/runtime/frame) [`proxy`](https://github.com/paritytech/substrate/tree/master/frame/proxy), [`multisig`](https://github.com/paritytech/substrate/tree/master/frame/multisig) and [`utility`](https://github.com/paritytech/substrate/tree/master/frame/utility#for-pseudonymal-dispatch) (see pseudonymal dispatch) pallets, that minimizes attack vectors associated with operating a hot wallet as a custodian.
 
