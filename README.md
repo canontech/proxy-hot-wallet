@@ -4,6 +4,8 @@ Demo for a safe and effective custodial hot wallet architecture using features i
 
 By [@joepetrowski](https://github.com/joepetrowski) & [@emostov](https://github.com/emostov)
 
+**N.B.** This demo needs some updates to reflect best practices. Primarily, there should be NonTransfer proxies that have the ability to remove the Transfer proxies if a questionable proxy announcement is made. Please file an issue if would like clarification and/or see the updates reflected in the demo.
+
 ## Disclaimer
 
 This repo is for demonstration purposes only.
