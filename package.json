@@ -16,9 +16,10 @@
     "sidecar": "SAS_LOG_LEVEL=http ./node_modules/.bin/substrate-api-sidecar"
   },
   "dependencies": {
-    "@polkadot/util-crypto": "^3.5.1",
-    "@substrate/api-sidecar": "^1.0.0-rc3",
-    "@substrate/txwrapper": "^3.10.0",
+    "@polkadot/util-crypto": "^5.3.1",
+    "@substrate/api-sidecar": "^2.1.2",
+    "@substrate/txwrapper": "^3.10.6",
+    "@types/memoizee": "^0.4.5",
     "axios": "^0.20.0"
   },
   "devDependencies": {
