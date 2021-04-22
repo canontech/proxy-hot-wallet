@@ -19,7 +19,7 @@
     "@polkadot/util": "^6.2.1",
     "@polkadot/util-crypto": "^6.2.1",
     "@substrate/api-sidecar": "^4.0.8",
-    "@substrate/txwrapper": "^4.0.3",
+    "@substrate/txwrapper": "^4.1.0",
     "@types/memoizee": "^0.4.5",
     "axios": "^0.21.1"
   },

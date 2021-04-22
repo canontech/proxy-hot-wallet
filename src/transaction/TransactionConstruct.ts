@@ -368,6 +368,30 @@ export class TransactionConstruct {
 		return { unsigned, registry, metadataRpc: baseInfo.metadataRpc };
 	}
 
+	async proxyAnonymous(
+		{ origin, tip, height, metadataRpc }: TransactionOpts,
+		proxyType: string,
+		delay: number,
+		index: number,
+	): Promise<UnsignedMaterial> {
+		const { baseInfo, registry } = await this.fetchTransactionMaterial({
+			origin,
+			height,
+			metadataRpc,
+		});
+
+		const unsigned = txwrapper.proxy.anonymous(
+			{ proxyType, delay, index },
+			{
+				address: origin,
+				tip,
+				...baseInfo,
+			},
+			{ metadataRpc: baseInfo.metadataRpc, registry }
+		);
+		return { unsigned, registry, metadataRpc: baseInfo.metadataRpc };
+	}
+
 	async balancesTransfer(
 		{ origin, tip, height, metadataRpc }: TransactionOpts,
 		dest: string,

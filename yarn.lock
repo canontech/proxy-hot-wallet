@@ -542,10 +542,10 @@
   resolved "https://registry.yarnpkg.com/@substrate/calc/-/calc-0.2.0.tgz#f558d3059d43f52cd911e1107abf9094d295b910"
   integrity sha512-LymmCHIUhN3KD/70CYs0XwUldu0UHg+D1xxdFxEtCzPPeTcyhmlOm2c9EhBjImwb2OiIvpEUONkppxvHMXkNvg==
 
-"@substrate/txwrapper@^4.0.3":
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/@substrate/txwrapper/-/txwrapper-4.0.3.tgz#e2c21a087057f31cd2594721848ad13eea10e5d7"
-  integrity sha512-JFOAKAT3si4/MYCIaRDZRsIsQcKldlz9VF3Hb+OAwkQrh/wtn97nYosT1tQotJyVsiBlXHbqdr8Rq/hD/rGfvg==
+"@substrate/txwrapper@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@substrate/txwrapper/-/txwrapper-4.1.0.tgz#2589052c0a6d4ab315da3c1eddc7f478c8d2bbf5"
+  integrity sha512-mwf2MgI/1Oz4ENOifNbYe3LOfnuvdWrV+T3qx+Ze1FvAhXCeBfyvd9FArGUnO1yeuZTRos/iayYVJIhHbFPuZg==
   dependencies:
     "@polkadot/api" "4.6.2"
     memoizee "^0.4.14"
