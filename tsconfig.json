@@ -1,15 +1,15 @@
 {
+  "extends": "@substrate/dev/config/tsconfig.json",
   "compilerOptions": {
-    "declaration": true,
-    "module": "CommonJS",
-    "target": "ES6",
+    "baseUrl": ".",
     "outDir": "build",
-    "esModuleInterop": true,
-    "strict": true,
-    "sourceMap": true,
-    "pretty": true
+    "suppressImplicitAnyIndexErrors": true,
   },
+  "exclude": [
+    "node_modules",
+    "build"
+  ],
   "include": [
-    "src"
+    "./src/**/*.ts"
   ]
 }

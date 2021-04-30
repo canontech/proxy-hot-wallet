@@ -14,7 +14,9 @@
     "lint": "tsc && eslint . --ext ts",
     "build": "tsc",
     "main": "node ./build/main.js",
+    "staking": "node ./build/staking.js",
     "start": "yarn run build && yarn run main",
+    "start:staking": "yarn run build && yarn run staking",
     "demo": "yarn run main",
     "sidecar": "SAS_LOG_LEVEL=http ./node_modules/.bin/substrate-api-sidecar"
   },

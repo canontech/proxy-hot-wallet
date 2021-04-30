@@ -215,9 +215,7 @@ async function adversarialPath(
 				keys.eve,
 				proxyAnnouncedCallC1
 			);
-			console.log(
-				`\n(💤background task) proxy.proxyAnnounced(${c1Display})`
-			);
+			console.log(`\n(💤background task) proxy.proxyAnnounced(${c1Display})`);
 			submiting();
 			const result7 = await sidecarApi.submitTransaction(
 				signedProxyAnnoucedTxC1
@@ -258,8 +256,7 @@ async function adversarialPath(
 	console.log(
 		'\n🚧 Malicious proxy transfer detected, kicking off proxy removal protocol! 🚧\n'
 	);
-	const removeProxiesDisplay =
-		'proxy.removeProxies(origin: multisig address)';
+	const removeProxiesDisplay = 'proxy.removeProxies(origin: multisig address)';
 	const {
 		unsigned: { method: removeProxiesMethod },
 	} = await transactionConstruct.proxyRemoveProxies({ origin: multisigAddr });
@@ -309,9 +306,7 @@ async function adversarialPath(
 		keys.bob,
 		removeProxiesAsMulti
 	);
-	console.log(
-		`\nmultisig.asMulti(origin: Bob, call: ${removeProxiesDisplay})`
-	);
+	console.log(`\nmultisig.asMulti(origin: Bob, call: ${removeProxiesDisplay})`);
 	submiting();
 	const nodeRes5 = await sidecarApi.submitTransaction(
 		signedremoveProxiesAsMulti
@@ -414,9 +409,7 @@ async function happyPath(
 				`\n(💤 background task) proxy.proxyAnnounced(origin: Eve, call: ${c0Display}))`
 			);
 			submiting();
-			const result7 = await sidecarApi.submitTransaction(
-				signedProxyAnnouced
-			);
+			const result7 = await sidecarApi.submitTransaction(signedProxyAnnouced);
 			console.log(`\n(💤 background task) Node response: `, result7.hash);
 			waiting();
 			const inclusionPoint4 = await chainSync.pollingEventListener(
@@ -588,6 +581,6 @@ async function depositerTransferToDeriv(
 		'balances.transfer(origin: Charlie, dest: derive address 1) succesfully included at ',
 		inclusionPoint2
 	);
-	logSeperator(); 
+	logSeperator();
 	await waitToContinue();
 }

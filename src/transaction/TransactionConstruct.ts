@@ -124,10 +124,7 @@ export class TransactionConstruct {
 					maybeTimepointArg === null
 						? null
 						: registry
-								.createType(
-									'Option<Timepoint>',
-									maybeTimepointArg
-								)
+								.createType('Option<Timepoint>', maybeTimepointArg)
 								.toJSON(),
 				callHash,
 				maxWeight,
@@ -372,7 +369,7 @@ export class TransactionConstruct {
 		{ origin, tip, height, metadataRpc }: TransactionOpts,
 		proxyType: string,
 		delay: number,
-		index: number,
+		index: number
 	): Promise<UnsignedMaterial> {
 		const { baseInfo, registry } = await this.fetchTransactionMaterial({
 			origin,
@@ -473,11 +470,7 @@ export class TransactionConstruct {
 	 * Simple function to check if a call is balance transfer to the cold storage
 	 * address given on instance initizilation.
 	 */
-	safetyWorker({
-		unsigned,
-		registry,
-		metadataRpc,
-	}: UnsignedMaterial): boolean {
+	safetyWorker({ unsigned, registry, metadataRpc }: UnsignedMaterial): boolean {
 		const decodedC0 = txwrapper.decode(unsigned, {
 			registry,
 			metadataRpc,
@@ -488,10 +481,7 @@ export class TransactionConstruct {
 		);
 		const isColdStorageAddress =
 			decodedC0.method.args.dest === this.coldStorage;
-		console.log(
-			'Destination is correct cold storage: ',
-			isColdStorageAddress
-		);
+		console.log('Destination is correct cold storage: ', isColdStorageAddress);
 
 		return isColdStorageAddress;
 	}

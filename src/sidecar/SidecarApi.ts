@@ -29,9 +29,7 @@ export class SidecarApi {
 		} catch (e) {
 			// Exponential back for up to 3 trys
 			if (attempts < 3) {
-				console.error(
-					`Attempt ${attempts} for sidecar endpoint ${uri}`
-				);
+				console.error(`Attempt ${attempts} for sidecar endpoint ${uri}`);
 				attempts += 1;
 				await sleep(2 * attempts * this.SECOND);
 				return await this.retryGet(uri, attempts);
@@ -68,9 +66,7 @@ export class SidecarApi {
 		height?: number
 	): Promise<AccountBalanceInfo> {
 		const response = height
-			? await this.retryGet(
-					`/accounts/${account}/balance-info?at=${height}`
-			  )
+			? await this.retryGet(`/accounts/${account}/balance-info?at=${height}`)
 			: await this.retryGet(`/accounts/${account}/balance-info`);
 
 		return response.data as AccountBalanceInfo;

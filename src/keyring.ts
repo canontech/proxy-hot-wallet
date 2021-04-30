@@ -36,11 +36,7 @@ export async function createDemoKeyPairs(): Promise<Keys> {
 		{ name: 'Charlie' },
 		'sr25519'
 	);
-	const ferdie = keyring.addFromUri(
-		'//Ferdie',
-		{ name: 'Ferdie' },
-		'sr25519'
-	);
+	const ferdie = keyring.addFromUri('//Ferdie', { name: 'Ferdie' }, 'sr25519');
 	const attacker = keyring.addFromUri(
 		'//Attacker',
 		{ name: 'Attacker' },

@@ -59,10 +59,4 @@ export class ChainSync {
 
 		return -1;
 	}
-
-	private eventDataEq(d1: string[], d2: string[]) {
-		return (
-			d1.length === d2.length && d1.every((ele, idx) => ele === d2[idx])
-		);
-	}
 }
