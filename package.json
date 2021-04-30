@@ -7,6 +7,9 @@
   "author": "Zeke Mostov <32168567+emostov@users.noreply.github.com>",
   "license": "Apache-2.0",
   "private": false,
+  "engines": {
+    "node": ">=14"
+  },
   "scripts": {
     "lint": "tsc && eslint . --ext ts",
     "build": "tsc",
@@ -16,19 +19,20 @@
     "sidecar": "SAS_LOG_LEVEL=http ./node_modules/.bin/substrate-api-sidecar"
   },
   "dependencies": {
-    "@polkadot/util": "^6.2.1",
-    "@polkadot/util-crypto": "^6.2.1",
-    "@substrate/api-sidecar": "^4.0.8",
+    "@polkadot/util": "^6.3.1",
+    "@polkadot/util-crypto": "^6.3.1",
+    "@substrate/api-sidecar": "^5.0.0",
     "@substrate/txwrapper": "^4.1.0",
     "@types/memoizee": "^0.4.5",
     "axios": "^0.21.1"
   },
   "devDependencies": {
-    "@types/node": "^14.14.41",
+    "@substrate/dev": "^0.5.2",
+    "@types/node": "^15.0.1",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
-    "eslint": "^7.24.0",
-    "eslint-config-prettier": "^8.2.0",
+    "eslint": "^7.25.0",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "prettier": "^2.2.1",
