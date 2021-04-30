@@ -1,5 +1,5 @@
-// import { blake2AsHex } from '@polkadot/util-crypto';
 import {
+	blake2AsHex,
 	// encodeDerivedAddress,
 	encodeMultiAddress,
 } from '@polkadot/util-crypto';
@@ -10,7 +10,7 @@ import { SidecarApi } from './sidecar/SidecarApi';
 import { TransactionConstruct } from './transaction/TransactionConstruct';
 import {
 	logSeperator,
-	// sortAddresses,
+	sortAddresses,
 	submiting,
 	waiting,
 	waitToContinue,
@@ -88,9 +88,80 @@ async function main() {
 	await waitToContinue();
 
 	/* Create an Anonynmous account with the staking teams multisig */
-	// const anonymousCall = transactionConstruct.proxyAnonymous(
-	// 	{ origin: }
-	// )
+
+	const {
+		unsigned: { method: createAnonMethod },
+	} = await transactionConstruct.proxyAnonymous(
+		{
+			origin: stakingMultiAddr,
+		},
+		'Any', // Proxy type, the most permissive option
+		10, // Time delay in blocks. 10 * 6sec = 1 minute
+		0 // Disambiguation index
+	);
+	const createAnonDisplay =
+		'proxy.anonymous(origin: staking multisig address, proxyType: Any)';
+	const createAnonHash = blake2AsHex(createAnonMethod, 256);
+
+	const maxWeight = 1000000000;
+
+	// construct tx for Bob to approve creation of an Anon account
+	const approveAsMulti = await transactionConstruct.multiSigApproveAsMulti(
+		{ origin: keys.bob.address },
+		2,
+		sortAddresses([keys.alice.address, keys.dave.address], ss58Prefix),
+		null,
+		createAnonHash,
+		maxWeight
+	);
+	const signedApproveAsMulti = transactionConstruct.createAndSignTransaction(
+		keys.bob,
+		approveAsMulti
+	);
+	console.log(
+		`multisig.approveAsMulti(origin: Bob , callHash: h(${createAnonDisplay}))`
+	);
+	const nodeRes2 = await sidecarApi.submitTransaction(signedApproveAsMulti);
+	console.log(`Node response: `, nodeRes2.hash);
+	waiting();
+	const inclusionPoint2 = await chainSync.pollingEventListener(
+		'multisig',
+		'NewMultisig'
+	);
+	console.log(
+		`multisig.approveAsMulti(origin: Bob , callHash: h(${createAnonDisplay})) succesfully included at `,
+		inclusionPoint2
+	);
+	logSeperator();
+	await waitToContinue();
+
+	// construct transaction for Dave to approve and execute adding Eve as a proxy to the multisig address
+	const asMulti = await transactionConstruct.multiSigAsMulti(
+		{ origin: keys.dave.address },
+		2,
+		sortAddresses([keys.alice.address, keys.bob.address], ss58Prefix),
+		inclusionPoint2,
+		createAnonMethod,
+		false,
+		maxWeight
+	);
+	const signedAsMulti = transactionConstruct.createAndSignTransaction(
+		keys.dave,
+		asMulti
+	);
+	console.log(`multisig.asMulti(origin: Dave, call: ${createAnonDisplay})`);
+	submiting();
+	const result3 = await sidecarApi.submitTransaction(signedAsMulti);
+	console.log(`Node response: `, result3.hash);
+	waiting();
+	const inlusionPoint3 = await chainSync.pollingEventListener(
+		'multisig',
+		'MultisigExecuted'
+	);
+	console.log(
+		`multisig.asMulti(origin: Dave, call: ${createAnonDisplay}) succsefully included at `,
+		inlusionPoint3
+	);
 }
 
 main().catch(console.log);

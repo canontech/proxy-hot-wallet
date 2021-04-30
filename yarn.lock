@@ -897,7 +897,7 @@
     "@types/bn.js" "^4.11.6"
     bn.js "^4.11.9"
 
-"@polkadot/util-crypto@6.3.1", "@polkadot/util-crypto@^6.0.5", "@polkadot/util-crypto@^6.2.1", "@polkadot/util-crypto@^6.3.1":
+"@polkadot/util-crypto@6.3.1", "@polkadot/util-crypto@^6.0.5", "@polkadot/util-crypto@^6.2.1", "@polkadot/util-crypto@^6.3.1", "@polkadot/util-crypto@latest":
   version "6.3.1"
   resolved "https://registry.yarnpkg.com/@polkadot/util-crypto/-/util-crypto-6.3.1.tgz#5328da77bdee5064bc41f9dec0a76cc634690b88"
   integrity sha512-fwH4t6EN2XACwJB2Z5xUyNo4mQ1RXJj0MgVaaLua8PbG0qq9tt4eaEbdVzrm7A6igIfsTntDoZISTfVjBcRtkQ==
@@ -932,7 +932,7 @@
     camelcase "^5.3.1"
     ip-regex "^4.3.0"
 
-"@polkadot/util@6.3.1", "@polkadot/util@^6.0.5", "@polkadot/util@^6.2.1", "@polkadot/util@^6.3.1":
+"@polkadot/util@6.3.1", "@polkadot/util@^6.0.5", "@polkadot/util@^6.2.1", "@polkadot/util@^6.3.1", "@polkadot/util@latest":
   version "6.3.1"
   resolved "https://registry.yarnpkg.com/@polkadot/util/-/util-6.3.1.tgz#410ee362ddb37f9c67af8f5897d977a7fd950ebf"
   integrity sha512-M9pGaXSB67DZPckdNQU29wq5W7BUOh6qeu5LonzxpUek+riJfbiF9JOgZQ2Q/aEFYbd1hqLbOMsLRZLhSmlbYw==
@@ -1120,7 +1120,7 @@
     remark "^13.0.0"
     strip-markdown "^4.0.0"
 
-"@substrate/api-sidecar@^5.0.0":
+"@substrate/api-sidecar@latest":
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/@substrate/api-sidecar/-/api-sidecar-5.0.0.tgz#305e10abb3aba1a16b907bb630f2875014b5142e"
   integrity sha512-2GWhZ741yFOI/sCFaualH8RfeUINm7Ia2zmbVwRSwfJWs3N+HzQfibhm9xdeQEvyoCstZaY9rt45mavwXw3rqQ==
@@ -1159,7 +1159,7 @@
     typescript "^4.2.3"
     yargs "^16.2.0"
 
-"@substrate/txwrapper@^4.1.0":
+"@substrate/txwrapper@latest":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@substrate/txwrapper/-/txwrapper-4.1.0.tgz#2589052c0a6d4ab315da3c1eddc7f478c8d2bbf5"
   integrity sha512-mwf2MgI/1Oz4ENOifNbYe3LOfnuvdWrV+T3qx+Ze1FvAhXCeBfyvd9FArGUnO1yeuZTRos/iayYVJIhHbFPuZg==
