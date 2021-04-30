@@ -14,7 +14,7 @@ export class ChainSync {
 		method: string,
 		// In real life you would need to check the events data, however for this demo we don't
 		_data?: string[]
-	): Promise<{ height: number; index: number } | null> {
+	): Promise<{ height: number; index: number; data: string[] } | null> {
 		const searching = true;
 		while (searching) {
 			const block = await this.sidecarApi.getBlock();
@@ -22,6 +22,7 @@ export class ChainSync {
 			for (const [idx, ext] of block.extrinsics.entries()) {
 				for (const {
 					method: { method: evMethod, pallet: evPallet },
+					data,
 				} of ext.events) {
 					if (evMethod === 'ExtrinsicFailed') {
 						throw `unexepcted extrinsic failure at block number ${block.number}`;
@@ -32,6 +33,7 @@ export class ChainSync {
 						return {
 							height: parseInt(block.number),
 							index: idx,
+							data,
 						};
 					}
 

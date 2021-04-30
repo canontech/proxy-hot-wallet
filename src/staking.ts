@@ -16,6 +16,14 @@ import {
 	waitToContinue,
 } from './util';
 
+/**
+ * flow
+ * - Eve creates Anon proxy
+ * - Eve adds 1/n multisig as a staking proxy to anon proxy with announcement
+ * - A multisig member makes proxy(staking.bond) on behalf of anon proxy
+ * - chain watch dog monitors for any unexpected announcementes by querying announcement storage
+ */
+
 const sidecarUrl = 'http://127.0.0.1:8080';
 
 async function main() {
@@ -155,13 +163,17 @@ async function main() {
 	console.log(`Node response: `, result3.hash);
 	waiting();
 	const inlusionPoint3 = await chainSync.pollingEventListener(
-		'multisig',
-		'MultisigExecuted'
+		'proxy',
+		'AnonymousCreated' // TODO clean up inlcusion point displays
 	);
+	// get the Anon proxy address from the event data
+	const anonAddress = (inlusionPoint3 as { data: string[] }).data[0];
 	console.log(
 		`multisig.asMulti(origin: Dave, call: ${createAnonDisplay}) succsefully included at `,
 		inlusionPoint3
 	);
+	console.log(`Anonymous proxy address: ${anonAddress}`);
+	// Now the staking multisig is an any proxy for the Anon account we just create
 }
 
 main().catch(console.log);
